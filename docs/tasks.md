@@ -2,10 +2,7 @@
 
 ## Epic: Zod 중심 데이터 관리 아키텍처 구현
 
-### Story: 프로젝트 초기 설정
-- [ ] NestJS 프로젝트 생성
-- [ ] 기본 의존성 설치 (zod, mongoose, validator)
-- [ ] Git 로컬 저장소 초기화 및 gitflow 설정
+### Story: 프로젝트 초기 설정 ✅
 
 ### Story: Phase 0 - 기반 인프라 구축
 - [ ] BaseSchema 및 공통 유틸리티 구현
