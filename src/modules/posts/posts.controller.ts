@@ -11,7 +11,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { ZodQuery, ZodParam } from '../../common/decorators';
+import { ZodQuery, ZodParam, ZodBody } from '../../common/decorators';
 import {
   CreatePostSchema,
   UpdatePostSchema,
@@ -29,6 +29,18 @@ import {
   UpdatePostResponseSchema,
   DeletePostResponseSchema,
 } from '../../schemas/response/post.response.schema';
+import type {
+  CreatePostDto,
+  UpdatePostDto,
+  ChangePostStatusDto,
+} from '../../types/dto/post.dto.types';
+import type {
+  PostListQueryDto,
+  PostFindQueryDto,
+  PostIdParamDto,
+  PostSlugParamDto,
+  PostStatsQueryDto,
+} from '../../types/query/post.query.types';
 
 /**
  * 게시물 컨트롤러
@@ -43,9 +55,10 @@ export class PostsController {
    */
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createPostDto: any) {
-    const validatedDto = CreatePostSchema.parse(createPostDto);
-    const post = await this.postsService.create(validatedDto);
+  @ZodBody(CreatePostSchema)
+  async create(@Body() createPostDto: CreatePostDto) {
+    // ZodBody 데코레이터에서 이미 검증되었으므로 바로 사용
+    const post = await this.postsService.create(createPostDto);
 
     return CreatePostResponseSchema.parse({
       message: '게시물이 성공적으로 생성되었습니다.',
@@ -57,7 +70,7 @@ export class PostsController {
    * 게시물 목록 조회
    */
   @Get()
-  async findAll(@ZodQuery(PostListQuerySchema) query: any) {
+  async findAll(@ZodQuery(PostListQuerySchema) query: PostListQueryDto) {
     return this.postsService.findAll(query);
   }
 
@@ -65,7 +78,7 @@ export class PostsController {
    * 게시물 통계 조회
    */
   @Get('stats')
-  async getStats(@ZodQuery(PostStatsQuerySchema) query: any) {
+  async getStats(@ZodQuery(PostStatsQuerySchema) query: PostStatsQueryDto) {
     return this.postsService.getStats(query);
   }
 
@@ -101,10 +114,10 @@ export class PostsController {
    */
   @Get('author/:authorId')
   async findByAuthor(
-    @ZodParam(PostIdParamSchema) params: any,
-    @ZodQuery(PostListQuerySchema) query: any,
+    @ZodParam(PostIdParamSchema) params: PostIdParamDto,
+    @ZodQuery(PostListQuerySchema) query: PostListQueryDto,
   ) {
-    const { authorId } = params as { authorId: string };
+    const { id: authorId } = params;
     return this.postsService.findByAuthor(authorId, query);
   }
 
@@ -113,10 +126,10 @@ export class PostsController {
    */
   @Get('category/:categoryId')
   async findByCategory(
-    @ZodParam(PostIdParamSchema) params: any,
-    @ZodQuery(PostListQuerySchema) query: any,
+    @ZodParam(PostIdParamSchema) params: PostIdParamDto,
+    @ZodQuery(PostListQuerySchema) query: PostListQueryDto,
   ) {
-    const { categoryId } = params as { categoryId: string };
+    const { id: categoryId } = params;
     return this.postsService.findByCategory(categoryId, query);
   }
 
@@ -126,7 +139,7 @@ export class PostsController {
   @Get('tag/:tag')
   async findByTag(
     @Param('tag') tag: string,
-    @ZodQuery(PostListQuerySchema) query: any,
+    @ZodQuery(PostListQuerySchema) query: PostListQueryDto,
   ) {
     return this.postsService.findByTag(tag, query);
   }
@@ -136,10 +149,10 @@ export class PostsController {
    */
   @Get('id/:id')
   async findOneById(
-    @ZodParam(PostIdParamSchema) params: any,
-    @ZodQuery(PostFindQuerySchema) query: any,
+    @ZodParam(PostIdParamSchema) params: PostIdParamDto,
+    @ZodQuery(PostFindQuerySchema) query: PostFindQueryDto,
   ) {
-    const { id } = params as { id: string };
+    const { id } = params;
     return this.postsService.findOne(id, query);
   }
 
@@ -148,10 +161,10 @@ export class PostsController {
    */
   @Get(':slug')
   async findOneBySlug(
-    @ZodParam(PostSlugParamSchema) params: any,
-    @ZodQuery(PostFindQuerySchema) query: any,
+    @ZodParam(PostSlugParamSchema) params: PostSlugParamDto,
+    @ZodQuery(PostFindQuerySchema) query: PostFindQueryDto,
   ) {
-    const { slug } = params as { slug: string };
+    const { slug } = params;
     return this.postsService.findOne(slug, query);
   }
 
@@ -159,13 +172,14 @@ export class PostsController {
    * 게시물 수정
    */
   @Patch(':id')
+  @ZodBody(UpdatePostSchema)
   async update(
-    @ZodParam(PostIdParamSchema) params: any,
-    @Body() updatePostDto: any,
+    @ZodParam(PostIdParamSchema) params: PostIdParamDto,
+    @Body() updatePostDto: UpdatePostDto,
   ) {
-    const { id } = params as { id: string };
-    const validatedDto = UpdatePostSchema.parse(updatePostDto);
-    const post = await this.postsService.update(id, validatedDto);
+    const { id } = params;
+    // ZodBody 데코레이터에서 이미 검증되었으므로 바로 사용
+    const post = await this.postsService.update(id, updatePostDto);
 
     return UpdatePostResponseSchema.parse({
       message: '게시물이 성공적으로 수정되었습니다.',
@@ -177,13 +191,14 @@ export class PostsController {
    * 게시물 상태 변경
    */
   @Patch(':id/status')
+  @ZodBody(ChangePostStatusSchema)
   async changeStatus(
-    @ZodParam(PostIdParamSchema) params: any,
-    @Body() statusDto: any,
+    @ZodParam(PostIdParamSchema) params: PostIdParamDto,
+    @Body() statusDto: ChangePostStatusDto,
   ) {
-    const { id } = params as { id: string };
-    const validatedDto = ChangePostStatusSchema.parse(statusDto);
-    const post = await this.postsService.changeStatus(id, validatedDto);
+    const { id } = params;
+    // ZodBody 데코레이터에서 이미 검증되었으므로 바로 사용
+    const post = await this.postsService.changeStatus(id, statusDto);
 
     return UpdatePostResponseSchema.parse({
       message: '게시물 상태가 성공적으로 변경되었습니다.',
@@ -196,8 +211,8 @@ export class PostsController {
    */
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  async remove(@ZodParam(PostIdParamSchema) params: any) {
-    const { id } = params as { id: string };
+  async remove(@ZodParam(PostIdParamSchema) params: PostIdParamDto) {
+    const { id } = params;
     await this.postsService.remove(id);
 
     return DeletePostResponseSchema.parse({
