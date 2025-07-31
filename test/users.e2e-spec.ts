@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { AllExceptionsFilter } from '../src/common/filters/zod-exception.filter';
 
@@ -15,11 +15,10 @@ describe('Users (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    
-    // 전역 필터 및 파이프 설정
+
+    // 전역 필터 설정
     app.useGlobalFilters(new AllExceptionsFilter());
-    app.useGlobalPipes(new ValidationPipe());
-    
+
     await app.init();
   });
 
@@ -46,7 +45,7 @@ describe('Users (e2e)', () => {
           expect(response.body).toHaveProperty('email', createUserDto.email);
           expect(response.body).toHaveProperty('name', createUserDto.name);
           expect(response.body).not.toHaveProperty('password'); // 비밀번호는 응답에 포함되지 않아야 함
-          
+
           // 생성된 사용자 ID 저장 (다른 테스트에서 사용)
           createdUserId = response.body.id;
         });
@@ -65,7 +64,10 @@ describe('Users (e2e)', () => {
         .expect(400)
         .then((response) => {
           expect(response.body).toHaveProperty('success', false);
-          expect(response.body.error).toHaveProperty('message', 'Validation failed');
+          expect(response.body.error).toHaveProperty(
+            'message',
+            'Validation failed',
+          );
         });
     });
 
@@ -82,7 +84,10 @@ describe('Users (e2e)', () => {
         .expect(400)
         .then((response) => {
           expect(response.body).toHaveProperty('success', false);
-          expect(response.body.error).toHaveProperty('message', 'Validation failed');
+          expect(response.body.error).toHaveProperty(
+            'message',
+            'Validation failed',
+          );
         });
     });
 
@@ -99,7 +104,10 @@ describe('Users (e2e)', () => {
         .expect(409)
         .then((response) => {
           expect(response.body).toHaveProperty('success', false);
-          expect(response.body.error).toHaveProperty('message', 'Email already exists');
+          expect(response.body.error).toHaveProperty(
+            'message',
+            'Email already exists',
+          );
         });
     });
   });
@@ -158,7 +166,7 @@ describe('Users (e2e)', () => {
 
     it('존재하지 않는 ID로 조회 시 404 에러가 발생해야 함', () => {
       const nonExistentId = '507f1f77bcf86cd799439999';
-      
+
       return request(app.getHttpServer())
         .get(`/users/${nonExistentId}`)
         .expect(404)
@@ -174,7 +182,10 @@ describe('Users (e2e)', () => {
         .expect(400)
         .then((response) => {
           expect(response.body).toHaveProperty('success', false);
-          expect(response.body.error).toHaveProperty('message', 'Validation failed');
+          expect(response.body.error).toHaveProperty(
+            'message',
+            'Validation failed',
+          );
         });
     });
   });
@@ -240,7 +251,7 @@ describe('Users (e2e)', () => {
 
     it('존재하지 않는 사용자 삭제 시 404 에러가 발생해야 함', () => {
       const nonExistentId = '507f1f77bcf86cd799439999';
-      
+
       return request(app.getHttpServer())
         .delete(`/users/${nonExistentId}`)
         .expect(404);

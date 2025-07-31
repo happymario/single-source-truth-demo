@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  Query,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -19,7 +18,7 @@ import {
   ChangePasswordSchema,
 } from '../../schemas/dto/user.dto.schema';
 import { UserQuerySchema } from '../../schemas/query/user.query.schema';
-import {
+import type {
   CreateUserDto,
   UpdateUserDto,
   ChangePasswordDto,
@@ -54,7 +53,9 @@ export class UsersController {
    * GET /users?page=1&limit=10&name=john&role=user
    */
   @Get()
-  async findAll(@ZodQuery(UserQuerySchema) query: UserQueryDto): Promise<UserListResponse> {
+  async findAll(
+    @ZodQuery(UserQuerySchema) query: UserQueryDto,
+  ): Promise<UserListResponse> {
     return this.usersService.findAll(query);
   }
 

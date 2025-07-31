@@ -19,7 +19,7 @@ describe('UsersService', () => {
   const mockUser = {
     _id: '507f1f77bcf86cd799439011',
     email: 'test@example.com',
-    password: 'hashedPassword',
+    password: 'Test@1234Hash',
     name: 'Test User',
     role: 'user',
     isActive: true,
@@ -45,30 +45,35 @@ describe('UsersService', () => {
   };
 
   beforeEach(async () => {
+    const mockModel = jest.fn().mockImplementation((dto) => ({
+      ...mockUser,
+      ...dto,
+      save: jest.fn().mockResolvedValue(mockUser),
+    }));
+    
+    // Add static methods to the constructor function
+    mockModel.findOne = jest.fn();
+    mockModel.findById = jest.fn();
+    mockModel.find = jest.fn();
+    mockModel.countDocuments = jest.fn();
+    mockModel.findByIdAndUpdate = jest.fn();
+    mockModel.findByIdAndDelete = jest.fn();
+    mockModel.exec = jest.fn();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
         {
           provide: getModelToken(UserModel.name),
-          useValue: {
-            new: jest.fn().mockResolvedValue(mockUser),
-            constructor: jest.fn().mockResolvedValue(mockUser),
-            find: jest.fn(),
-            findOne: jest.fn(),
-            findById: jest.fn(),
-            findByIdAndUpdate: jest.fn(),
-            findByIdAndDelete: jest.fn(),
-            countDocuments: jest.fn(),
-            create: jest.fn(),
-            save: jest.fn(),
-            exec: jest.fn(),
-          },
+          useValue: mockModel,
         },
       ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    model = module.get<Model<UserDocument>>(getModelToken(UserModel.name)) as jest.Mocked<Model<UserDocument>>;
+    model = module.get<Model<UserDocument>>(
+      getModelToken(UserModel.name),
+    ) as jest.Mocked<Model<UserDocument>>;
 
     // bcrypt 모킹 설정
     mockedBcrypt.hash.mockResolvedValue('hashedPassword' as never);
@@ -82,19 +87,8 @@ describe('UsersService', () => {
   describe('create', () => {
     it('새 사용자를 성공적으로 생성해야 함', async () => {
       // Given
-      model.findOne.mockReturnValue({
-        exec: jest.fn().mockResolvedValue(null),
-      } as any);
-
-      const mockSavedUser = {
-        ...mockUser,
-        save: jest.fn().mockResolvedValue(mockUser),
-      };
-      
-      // @ts-ignore
-      model.constructor = jest.fn().mockReturnValue(mockSavedUser);
-      // Mock the model constructor
-      (model as any).mockImplementation(() => mockSavedUser);
+      mockedBcrypt.hash.mockResolvedValue('hashedPassword' as never);
+      model.findOne.mockResolvedValue(null);
 
       // When
       const result = await service.create(mockCreateUserDto);
@@ -103,7 +97,10 @@ describe('UsersService', () => {
       expect(model.findOne).toHaveBeenCalledWith({
         email: mockCreateUserDto.email.toLowerCase(),
       });
-      expect(mockedBcrypt.hash).toHaveBeenCalledWith(mockCreateUserDto.password, 12);
+      expect(mockedBcrypt.hash).toHaveBeenCalledWith(
+        mockCreateUserDto.password,
+        12,
+      );
       expect(result).toHaveProperty('id');
       expect(result).toHaveProperty('email', mockCreateUserDto.email);
       expect(result).not.toHaveProperty('password');
@@ -116,7 +113,9 @@ describe('UsersService', () => {
       } as any);
 
       // When & Then
-      await expect(service.create(mockCreateUserDto)).rejects.toThrow(ConflictException);
+      await expect(service.create(mockCreateUserDto)).rejects.toThrow(
+        ConflictException,
+      );
       expect(model.findOne).toHaveBeenCalledWith({
         email: mockCreateUserDto.email.toLowerCase(),
       });
@@ -158,7 +157,7 @@ describe('UsersService', () => {
       // Given
       const email = 'test@example.com';
       const mockUserWithPassword = { ...mockUser, password: 'hashedPassword' };
-      
+
       model.findOne.mockReturnValue({
         select: jest.fn().mockReturnValue({
           exec: jest.fn().mockResolvedValue(mockUserWithPassword),
@@ -169,7 +168,9 @@ describe('UsersService', () => {
       const result = await service.findByEmail(email);
 
       // Then
-      expect(model.findOne).toHaveBeenCalledWith({ email: email.toLowerCase() });
+      expect(model.findOne).toHaveBeenCalledWith({
+        email: email.toLowerCase(),
+      });
       expect(result).toHaveProperty('password');
     });
   });
@@ -181,7 +182,7 @@ describe('UsersService', () => {
       model.findById.mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockUser),
       } as any);
-      
+
       model.findByIdAndUpdate.mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockUser),
       } as any);
@@ -191,7 +192,9 @@ describe('UsersService', () => {
 
       // Then
       expect(model.findById).toHaveBeenCalledWith(userId);
-      expect(model.findByIdAndUpdate).toHaveBeenCalledWith(userId, { isActive: false });
+      expect(model.findByIdAndUpdate).toHaveBeenCalledWith(userId, {
+        isActive: false,
+      });
     });
 
     it('사용자를 찾지 못하면 NotFoundException을 던져야 함', async () => {

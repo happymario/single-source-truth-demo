@@ -42,10 +42,10 @@ export const SCHEMA_OPTIONS = {
   timestamps: true,
   toJSON: {
     virtuals: true,
-    transform: (doc: any, ret: any) => {
+    transform: (doc: mongoose.Document, ret: Record<string, unknown>) => {
       // _id를 id로 변환
-      if (ret._id) {
-        ret.id = ret._id.toHexString();
+      if (ret._id && typeof ret._id === 'object' && 'toHexString' in ret._id) {
+        ret.id = (ret._id as { toHexString(): string }).toHexString();
         delete ret._id;
       }
       // __v 제거 (혹시 있을 경우를 대비)
@@ -55,10 +55,10 @@ export const SCHEMA_OPTIONS = {
   },
   toObject: {
     virtuals: true,
-    transform: (doc: any, ret: any) => {
+    transform: (doc: mongoose.Document, ret: Record<string, unknown>) => {
       // _id를 id로 변환
-      if (ret._id) {
-        ret.id = ret._id.toHexString();
+      if (ret._id && typeof ret._id === 'object' && 'toHexString' in ret._id) {
+        ret.id = (ret._id as { toHexString(): string }).toHexString();
         delete ret._id;
       }
       // __v 제거

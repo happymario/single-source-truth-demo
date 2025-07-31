@@ -1,18 +1,19 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UserModel, UserDocument } from '../../models/user.model';
 import { UserMapper } from '../../common/mappers/user.mapper';
-import { 
-  CreateUserDto, 
-  UpdateUserDto, 
+import {
+  CreateUserDto,
+  UpdateUserDto,
   ChangePasswordDto,
   UserQueryDto,
 } from '../../types/dto/user.dto.types';
-import { 
-  User,
-} from '../../types/entities/user.types';
 import {
   UserResponse,
   UserListResponse,
@@ -33,17 +34,20 @@ export class UsersService {
    */
   async create(createUserDto: CreateUserDto): Promise<UserResponse> {
     // 이메일 중복 검사
-    const existingUser = await this.userModel.findOne({ 
-      email: createUserDto.email.toLowerCase() 
+    const existingUser = await this.userModel.findOne({
+      email: createUserDto.email.toLowerCase(),
     });
-    
+
     if (existingUser) {
       throw new ConflictException('Email already exists');
     }
 
     // 비밀번호 해싱
     const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(createUserDto.password, saltRounds);
+    const hashedPassword = await bcrypt.hash(
+      createUserDto.password,
+      saltRounds,
+    );
 
     // 사용자 생성
     const user = new this.userModel({
@@ -60,29 +64,30 @@ export class UsersService {
    * 사용자 목록 조회 (페이지네이션 및 필터링)
    */
   async findAll(query: UserQueryDto): Promise<UserListResponse> {
-    const { page, limit, sortBy, sortOrder, name, email, role, isActive } = query;
-    
+    const { page, limit, sortBy, sortOrder, name, email, role, isActive } =
+      query;
+
     // 필터 조건 구성
-    const filter: any = {};
-    
+    const filter: Record<string, unknown> = {};
+
     if (name) {
       filter.name = { $regex: name, $options: 'i' }; // 대소문자 무시 검색
     }
-    
+
     if (email) {
       filter.email = { $regex: email, $options: 'i' };
     }
-    
+
     if (role) {
       filter.role = role;
     }
-    
+
     if (isActive !== undefined) {
       filter.isActive = isActive;
     }
 
     // 정렬 옵션
-    const sort: any = {};
+    const sort: Record<string, 1 | -1> = {};
     sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
     // 페이지네이션 계산
@@ -90,12 +95,7 @@ export class UsersService {
 
     // 데이터 조회
     const [users, total] = await Promise.all([
-      this.userModel
-        .find(filter)
-        .sort(sort)
-        .skip(skip)
-        .limit(limit)
-        .exec(),
+      this.userModel.find(filter).sort(sort).skip(skip).limit(limit).exec(),
       this.userModel.countDocuments(filter),
     ]);
 
@@ -121,7 +121,7 @@ export class UsersService {
    */
   async findOne(id: string): Promise<UserResponse> {
     const user = await this.userModel.findById(id).exec();
-    
+
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
@@ -142,28 +142,34 @@ export class UsersService {
   /**
    * 사용자 정보 수정
    */
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<UserResponse> {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserResponse> {
     const user = await this.userModel.findById(id).exec();
-    
+
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
     // 이메일 변경 시 중복 검사
-    if (updateUserDto.email && updateUserDto.email !== user.email) {
-      const existingUser = await this.userModel.findOne({ 
+    if (
+      updateUserDto.email &&
+      updateUserDto.email !== (user as { email: string }).email
+    ) {
+      const existingUser = await this.userModel.findOne({
         email: updateUserDto.email.toLowerCase(),
         _id: { $ne: id },
       });
-      
+
       if (existingUser) {
         throw new ConflictException('Email already exists');
       }
     }
 
     // 데이터 업데이트
-    const updateData: any = { ...updateUserDto };
-    if (updateData.email) {
+    const updateData: Record<string, unknown> = { ...updateUserDto };
+    if (typeof updateData.email === 'string') {
       updateData.email = updateData.email.toLowerCase();
     }
 
@@ -177,12 +183,12 @@ export class UsersService {
   /**
    * 비밀번호 변경
    */
-  async changePassword(id: string, changePasswordDto: ChangePasswordDto): Promise<void> {
-    const user = await this.userModel
-      .findById(id)
-      .select('+password')
-      .exec();
-    
+  async changePassword(
+    id: string,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<void> {
+    const user = await this.userModel.findById(id).select('+password').exec();
+
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
@@ -224,15 +230,13 @@ export class UsersService {
    */
   async remove(id: string): Promise<void> {
     const user = await this.userModel.findById(id).exec();
-    
+
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
     // 소프트 삭제 (계정 비활성화)
-    await this.userModel
-      .findByIdAndUpdate(id, { isActive: false })
-      .exec();
+    await this.userModel.findByIdAndUpdate(id, { isActive: false }).exec();
   }
 
   /**
@@ -240,7 +244,7 @@ export class UsersService {
    */
   async hardDelete(id: string): Promise<void> {
     const result = await this.userModel.findByIdAndDelete(id).exec();
-    
+
     if (!result) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }

@@ -62,7 +62,7 @@ export const CategoryMasterSchema = z.object({
   /**
    * 부모 카테고리 ID (계층 구조 지원)
    */
-  parentId: ObjectIdSchema.optional(),
+  parentId: ObjectIdSchema.nullable().optional(),
 
   /**
    * 카테고리 순서 (정렬용)

@@ -11,7 +11,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - Create feature branches per story using: `git flow feature start story-name`
    - Make commits at task level granularity (one commit per task)
    - Finish feature branches using: `git flow feature finish story-name`
-4. **Story Completion**:
+4. **Quality Assurance**:
+   - After each task completion: run `npm run lint` and `npm run build`
+   - After test code completion: immediately run `npm run test` and `npm run test:e2e`
+   - Fix any errors before proceeding to next task
+5. **Story Completion**:
    - Mark story as complete in `docs/tasks.md`
    - Delete associated tasks from the file
    - Complete the feature branch with git flow (merges to develop automatically)
@@ -221,8 +225,10 @@ Before moving to the next entity:
 - [ ] Model configured with versionKey: false
 - [ ] Mapper handles _id → id conversion
 - [ ] No `any` types in entire module
-- [ ] npm run type-check passes
-- [ ] All tests pass
+- [ ] `npm run lint` passes without errors
+- [ ] `npm run build` passes without errors
+- [ ] `npm run test` passes all unit tests
+- [ ] `npm run test:e2e` passes all E2E tests
 
 ## Common Gotchas
 

@@ -6,7 +6,7 @@ describe('UserMapper', () => {
   const mockUserDocument = {
     _id: { toHexString: () => '507f1f77bcf86cd799439011' },
     email: 'test@example.com',
-    password: 'hashedPassword',
+    password: 'Test@1234Hash',
     name: 'Test User',
     role: 'user' as const,
     isActive: true,
@@ -15,7 +15,7 @@ describe('UserMapper', () => {
     toJSON: jest.fn().mockReturnValue({
       id: '507f1f77bcf86cd799439011',
       email: 'test@example.com',
-      password: 'hashedPassword',
+      password: 'Test@1234Hash',
       name: 'Test User',
       role: 'user',
       isActive: true,
@@ -27,7 +27,7 @@ describe('UserMapper', () => {
   const mockUser = {
     id: '507f1f77bcf86cd799439011',
     email: 'test@example.com',
-    password: 'hashedPassword',
+    password: 'Test@1234Hash',
     name: 'Test User',
     role: 'user' as const,
     isActive: true,
@@ -49,14 +49,16 @@ describe('UserMapper', () => {
       expect(result).toHaveProperty('id', '507f1f77bcf86cd799439011');
       expect(result).toHaveProperty('email', 'test@example.com');
       expect(result).toHaveProperty('name', 'Test User');
-      expect(result).toHaveProperty('password', 'hashedPassword');
+      expect(result).toHaveProperty('password', 'Test@1234Hash');
       expect(result.createdAt).toBeInstanceOf(Date);
       expect(result.updatedAt).toBeInstanceOf(Date);
     });
 
     it('Document가 null이면 에러를 던져야 함', () => {
       // When & Then
-      expect(() => UserMapper.toEntity(null as any)).toThrow('Document is required');
+      expect(() =>
+        UserMapper.toEntity(null as unknown as UserDocument),
+      ).toThrow('Document is required');
     });
   });
 
@@ -88,7 +90,9 @@ describe('UserMapper', () => {
 
     it('Document가 null이면 에러를 던져야 함', () => {
       // When & Then
-      expect(() => UserMapper.documentToResponse(null as any)).toThrow('Document is required');
+      expect(() =>
+        UserMapper.documentToResponse(null as unknown as UserDocument),
+      ).toThrow('Document is required');
     });
   });
 

@@ -10,9 +10,7 @@ import { UserModel, UserSchema } from '../../models/user.model';
  */
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: UserModel.name, schema: UserSchema },
-    ]),
+    MongooseModule.forFeature([{ name: UserModel.name, schema: UserSchema }]),
   ],
   controllers: [UsersController],
   providers: [UsersService],

@@ -82,11 +82,13 @@ export const ErrorResponseSchema = z.object({
     statusCode: z.number(),
     timestamp: z.date(),
     path: z.string().optional(),
-    details: z.array(
-      z.object({
-        field: z.string(),
-        message: z.string(),
-      }),
-    ).optional(),
+    details: z
+      .array(
+        z.object({
+          field: z.string(),
+          message: z.string(),
+        }),
+      )
+      .optional(),
   }),
 });

@@ -6,7 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { ZodError } from 'zod';
+import { ZodError, ZodIssue } from 'zod';
 
 /**
  * Zod 검증 에러를 처리하는 예외 필터
@@ -28,7 +28,7 @@ export class ZodExceptionFilter implements ExceptionFilter {
         statusCode: status,
         timestamp: new Date(),
         path: request.url,
-        details: exception.errors.map((error) => ({
+        details: exception.issues.map((error: ZodIssue) => ({
           field: error.path.join('.'),
           message: error.message,
           code: error.code,
@@ -54,15 +54,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     let errorMessage = 'An error occurred';
     let errorCode = 'UNKNOWN_ERROR';
-    let details: any[] | undefined;
+    let details: Array<{ field: string; message: string }> | undefined;
 
     if (typeof exceptionResponse === 'string') {
       errorMessage = exceptionResponse;
-    } else if (typeof exceptionResponse === 'object') {
-      const responseObj = exceptionResponse as any;
-      errorMessage = responseObj.message || errorMessage;
-      errorCode = responseObj.code || errorCode;
-      details = responseObj.errors || responseObj.details;
+    } else if (
+      typeof exceptionResponse === 'object' &&
+      exceptionResponse !== null
+    ) {
+      const responseObj = exceptionResponse as Record<string, unknown>;
+      errorMessage = (responseObj.message as string) || errorMessage;
+      errorCode = (responseObj.code as string) || errorCode;
+      details =
+        (responseObj.errors as Array<{ field: string; message: string }>) ||
+        (responseObj.details as Array<{ field: string; message: string }>);
     }
 
     const errorResponse = {
@@ -101,10 +106,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
       const exceptionResponse = exception.getResponse();
       if (typeof exceptionResponse === 'string') {
         message = exceptionResponse;
-      } else if (typeof exceptionResponse === 'object') {
-        const responseObj = exceptionResponse as any;
-        message = responseObj.message || message;
-        code = responseObj.code || code;
+      } else if (
+        typeof exceptionResponse === 'object' &&
+        exceptionResponse !== null
+      ) {
+        const responseObj = exceptionResponse as Record<string, unknown>;
+        message = (responseObj.message as string) || message;
+        code = (responseObj.code as string) || code;
       }
     }
     // Zod 에러인 경우

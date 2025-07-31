@@ -20,15 +20,23 @@ export class UserMapper {
 
     // toJSON()을 통해 _id → id 변환 및 virtual 필드 포함
     const json = document.toJSON();
-    
+
     // Zod 스키마로 타입 검증 및 파싱
     return UserMasterSchema.parse({
       ...json,
       // Date 객체 변환 (MongoDB에서 가져온 데이터는 Date 객체여야 함)
-      createdAt: json.createdAt instanceof Date ? json.createdAt : new Date(json.createdAt),
-      updatedAt: json.updatedAt instanceof Date ? json.updatedAt : new Date(json.updatedAt),
-      lastLoginAt: json.lastLoginAt 
-        ? (json.lastLoginAt instanceof Date ? json.lastLoginAt : new Date(json.lastLoginAt))
+      createdAt:
+        json.createdAt instanceof Date
+          ? json.createdAt
+          : new Date(json.createdAt),
+      updatedAt:
+        json.updatedAt instanceof Date
+          ? json.updatedAt
+          : new Date(json.updatedAt),
+      lastLoginAt: json.lastLoginAt
+        ? json.lastLoginAt instanceof Date
+          ? json.lastLoginAt
+          : new Date(json.lastLoginAt)
         : undefined,
     });
   }
@@ -51,13 +59,21 @@ export class UserMapper {
     }
 
     const json = document.toJSON();
-    
+
     return UserResponseSchema.parse({
       ...json,
-      createdAt: json.createdAt instanceof Date ? json.createdAt : new Date(json.createdAt),
-      updatedAt: json.updatedAt instanceof Date ? json.updatedAt : new Date(json.updatedAt),
-      lastLoginAt: json.lastLoginAt 
-        ? (json.lastLoginAt instanceof Date ? json.lastLoginAt : new Date(json.lastLoginAt))
+      createdAt:
+        json.createdAt instanceof Date
+          ? json.createdAt
+          : new Date(json.createdAt),
+      updatedAt:
+        json.updatedAt instanceof Date
+          ? json.updatedAt
+          : new Date(json.updatedAt),
+      lastLoginAt: json.lastLoginAt
+        ? json.lastLoginAt instanceof Date
+          ? json.lastLoginAt
+          : new Date(json.lastLoginAt)
         : undefined,
     });
   }
@@ -66,13 +82,13 @@ export class UserMapper {
    * 여러 Document를 Entity 배열로 변환
    */
   static toEntities(documents: UserDocument[]): User[] {
-    return documents.map(doc => this.toEntity(doc));
+    return documents.map((doc) => this.toEntity(doc));
   }
 
   /**
    * 여러 Document를 응답 배열로 변환
    */
   static documentsToResponses(documents: UserDocument[]): UserResponse[] {
-    return documents.map(doc => this.documentToResponse(doc));
+    return documents.map((doc) => this.documentToResponse(doc));
   }
 }

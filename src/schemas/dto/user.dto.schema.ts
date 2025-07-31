@@ -17,15 +17,13 @@ export const CreateUserSchema = UserMasterSchema.omit({
  * id, createdAt, updatedAt, lastLoginAt 필드 제외하고 모든 필드 선택사항
  * password는 수정 시 포함하지 않음 (별도 엔드포인트에서 처리)
  */
-export const UpdateUserSchema = UserMasterSchema
-  .omit({
-    id: true,
-    password: true,
-    createdAt: true,
-    updatedAt: true,
-    lastLoginAt: true,
-  })
-  .partial();
+export const UpdateUserSchema = UserMasterSchema.omit({
+  id: true,
+  password: true,
+  createdAt: true,
+  updatedAt: true,
+  lastLoginAt: true,
+}).partial();
 
 /**
  * 비밀번호 변경 DTO 스키마

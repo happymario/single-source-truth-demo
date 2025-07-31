@@ -20,8 +20,8 @@ export class UserModel extends BaseModel implements User {
   /**
    * 이메일 주소 (고유값)
    */
-  @Prop({ 
-    required: true, 
+  @Prop({
+    required: true,
     unique: true,
     lowercase: true,
     trim: true,
@@ -32,7 +32,7 @@ export class UserModel extends BaseModel implements User {
   /**
    * 비밀번호 (해시된 값)
    */
-  @Prop({ 
+  @Prop({
     required: true,
     select: false, // 기본적으로 조회 시 제외
   })
@@ -41,7 +41,7 @@ export class UserModel extends BaseModel implements User {
   /**
    * 사용자 이름
    */
-  @Prop({ 
+  @Prop({
     required: true,
     trim: true,
   })
@@ -50,7 +50,7 @@ export class UserModel extends BaseModel implements User {
   /**
    * 자기소개 (선택)
    */
-  @Prop({ 
+  @Prop({
     required: false,
     trim: true,
   })
@@ -59,7 +59,7 @@ export class UserModel extends BaseModel implements User {
   /**
    * 프로필 이미지 URL (선택)
    */
-  @Prop({ 
+  @Prop({
     required: false,
   })
   avatar?: string;
@@ -67,7 +67,7 @@ export class UserModel extends BaseModel implements User {
   /**
    * 사용자 권한
    */
-  @Prop({ 
+  @Prop({
     required: true,
     enum: ['user', 'admin'],
     default: 'user',
@@ -78,7 +78,7 @@ export class UserModel extends BaseModel implements User {
   /**
    * 계정 활성화 상태
    */
-  @Prop({ 
+  @Prop({
     required: true,
     default: true,
     index: true,
@@ -88,7 +88,7 @@ export class UserModel extends BaseModel implements User {
   /**
    * 마지막 로그인 시간 (선택)
    */
-  @Prop({ 
+  @Prop({
     required: false,
   })
   lastLoginAt?: Date;

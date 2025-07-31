@@ -8,13 +8,7 @@
 
 ### Story: Phase 1 - User 컬렉션 구현 ✅
 
-### Story: Phase 2 - Category 컬렉션 구현
-- [ ] CategoryMasterSchema 정의
-- [ ] Category DTO 및 타입 구현
-- [ ] CategoryModel 구현
-- [ ] CategoryMapper 구현
-- [ ] Categories 모듈 완성
-- [ ] Category 테스트 작성
+### Story: Phase 2 - Category 컬렉션 구현 ✅
 
 ### Story: Phase 3 - Post 컬렉션 구현
 - [ ] PostMasterSchema 정의 (관계 포함)

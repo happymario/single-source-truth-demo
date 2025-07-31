@@ -97,7 +97,7 @@ describe('UserMasterSchema', () => {
       ];
 
       // When & Then
-      validEmails.forEach(email => {
+      validEmails.forEach((email) => {
         const userData = { ...validUserData, email };
         expect(() => UserMasterSchema.parse(userData)).not.toThrow();
       });
@@ -108,15 +108,15 @@ describe('UserMasterSchema', () => {
     it('약한 비밀번호면 검증 실패해야 함', () => {
       // Given
       const weakPasswords = [
-        '123456',           // 너무 짧고 단순
-        'password',         // 소문자만
-        'PASSWORD',         // 대문자만
-        'Password',         // 숫자 없음
-        'Password123',      // 특수문자 없음
+        '123456', // 너무 짧고 단순
+        'password', // 소문자만
+        'PASSWORD', // 대문자만
+        'Password', // 숫자 없음
+        'Password123', // 특수문자 없음
       ];
 
       // When & Then
-      weakPasswords.forEach(password => {
+      weakPasswords.forEach((password) => {
         const userData = { ...validUserData, password };
         expect(() => UserMasterSchema.parse(userData)).toThrow();
       });
@@ -131,7 +131,7 @@ describe('UserMasterSchema', () => {
       ];
 
       // When & Then
-      strongPasswords.forEach(password => {
+      strongPasswords.forEach((password) => {
         const userData = { ...validUserData, password };
         expect(() => UserMasterSchema.parse(userData)).not.toThrow();
       });
@@ -170,7 +170,7 @@ describe('UserMasterSchema', () => {
       const validRoles = ['user', 'admin'] as const;
 
       // When & Then
-      validRoles.forEach(role => {
+      validRoles.forEach((role) => {
         const userData = { ...validUserData, role };
         expect(() => UserMasterSchema.parse(userData)).not.toThrow();
       });
@@ -183,12 +183,12 @@ describe('UserMasterSchema', () => {
       const invalidIds = [
         'invalid',
         '123',
-        '507f1f77bcf86cd79943901',  // 너무 짧음
+        '507f1f77bcf86cd79943901', // 너무 짧음
         '507f1f77bcf86cd79943901g', // 유효하지 않은 문자
       ];
 
       // When & Then
-      invalidIds.forEach(id => {
+      invalidIds.forEach((id) => {
         const userData = { ...validUserData, id };
         expect(() => UserMasterSchema.parse(userData)).toThrow();
       });
@@ -196,13 +196,10 @@ describe('UserMasterSchema', () => {
 
     it('유효한 ObjectId 형식이면 통과해야 함', () => {
       // Given
-      const validIds = [
-        '507f1f77bcf86cd799439011',
-        '61234567890abcdef1234567',
-      ];
+      const validIds = ['507f1f77bcf86cd799439011', '61234567890abcdef1234567'];
 
       // When & Then
-      validIds.forEach(id => {
+      validIds.forEach((id) => {
         const userData = { ...validUserData, id };
         expect(() => UserMasterSchema.parse(userData)).not.toThrow();
       });
