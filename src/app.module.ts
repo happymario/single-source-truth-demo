@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CommonModule } from './common/common.module';
 import { DatabaseModule } from './database/database.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -10,6 +11,8 @@ import { DatabaseModule } from './database/database.module';
     CommonModule,
     // 데이터베이스 모듈 (MongoDB 연결)
     DatabaseModule,
+    // 기능 모듈들
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
