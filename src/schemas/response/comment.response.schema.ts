@@ -58,6 +58,8 @@ export const CommentTreeResponseSchema: z.ZodType<CommentTreeResponse> = z.lazy(
         role: true,
       }).optional(),
       children: z.array(CommentTreeResponseSchema).default([]),
+      childCount: z.number().int().min(0).default(0),
+      isRoot: z.boolean().default(false),
     }),
 );
 
@@ -70,15 +72,24 @@ export interface CommentTreeResponse
     role: 'user' | 'admin';
   };
   children: CommentTreeResponse[];
+  childCount: number;
+  isRoot: boolean;
 }
 
 /**
- * 댓글 스레드 응답 스키마
+ * 댓글 스레드 응답 스키마 (플랫 구조)
  */
-export const CommentThreadResponseSchema = z.object({
-  thread: CommentTreeResponseSchema,
-  totalComments: z.number().int().min(0),
-  maxDepth: z.number().int().min(0),
+export const CommentThreadResponseSchema = CommentResponseSchema.extend({
+  author: UserMasterSchema.pick({
+    id: true,
+    name: true,
+    avatar: true,
+    role: true,
+  }).optional(),
+  depth: z.number().int().min(0),
+  parentId: z.string().nullable(),
+  isRoot: z.boolean(),
+  hasChildren: z.boolean(),
 });
 
 /**
