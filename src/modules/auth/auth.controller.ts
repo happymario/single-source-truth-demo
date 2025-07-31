@@ -100,8 +100,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   logout(@Body() body: unknown): LogoutResponse {
     // RefreshToken이 제공된 경우 무효화 처리
-    const refreshToken = typeof body === 'object' && body !== null && 
-      'refreshToken' in body ? (body as { refreshToken?: string }).refreshToken : undefined;
+    const refreshToken =
+      typeof body === 'object' && body !== null && 'refreshToken' in body
+        ? (body as { refreshToken?: string }).refreshToken
+        : undefined;
     return this.authService.logout(refreshToken);
   }
 
