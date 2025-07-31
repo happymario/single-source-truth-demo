@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 import { UserDocument } from '../../../models/user.model';
+import { AuthService } from '../auth.service';
 
 /**
  * Local 인증 전략 (이메일/비밀번호 로그인)
@@ -12,7 +13,7 @@ import { UserDocument } from '../../../models/user.model';
  */
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(private readonly authService: AuthService) {
     super({
       usernameField: 'email', // 기본값인 'username' 대신 'email' 사용
       passwordField: 'password',
@@ -25,8 +26,11 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
    * @param password 비밀번호
    * @returns 검증된 사용자 정보
    */
-  validate(_email: string, _password: string): Promise<UserDocument> {
-    // TODO: AuthService.validateUser 구현 후 연결
-    throw new UnauthorizedException('AuthService not implemented yet');
+  async validate(email: string, password: string): Promise<UserDocument> {
+    const user = await this.authService.validateUser(email, password);
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    return user;
   }
 }
