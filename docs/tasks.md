@@ -4,12 +4,7 @@
 
 ### Story: 프로젝트 초기 설정 ✅
 
-### Story: Phase 0 - 기반 인프라 구축
-- [ ] BaseSchema 및 공통 유틸리티 구현
-- [ ] ZodValidationPipe 구현
-- [ ] Zod 데코레이터 구현 (@ZodBody, @ZodQuery, @ZodParam)
-- [ ] ZodExceptionFilter 구현
-- [ ] 공통 모듈 구조 설정
+### Story: Phase 0 - 기반 인프라 구축 ✅
 
 ### Story: Phase 1 - User 컬렉션 구현
 - [ ] UserMasterSchema 정의
