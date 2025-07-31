@@ -207,6 +207,24 @@ export class PostsController {
   }
 
   /**
+   * 게시물 좋아요/취소
+   */
+  @Post(':id/like')
+  @HttpCode(HttpStatus.OK)
+  async toggleLike(@ZodParam(PostIdParamSchema) params: PostIdParamDto) {
+    const { id } = params;
+    const result = await this.postsService.toggleLike(id);
+
+    return {
+      message: result.liked
+        ? '게시물 좋아요가 추가되었습니다.'
+        : '게시물 좋아요가 취소되었습니다.',
+      liked: result.liked,
+      likeCount: result.likeCount,
+    };
+  }
+
+  /**
    * 게시물 삭제
    */
   @Delete(':id')

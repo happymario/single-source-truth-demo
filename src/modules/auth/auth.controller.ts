@@ -91,15 +91,18 @@ export class AuthController {
   }
 
   /**
-   * 로그아웃
+   * 로그아웃 (Refresh Token 무효화)
+   * @param body 로그아웃 요청 정보 (refreshToken 포함)
    * @returns 로그아웃 완료 메시지
    */
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  logout(): LogoutResponse {
-    // 실제 구현에서는 토큰 블랙리스트 처리 등이 필요할 수 있음
-    return { message: 'Logged out successfully' };
+  logout(@Body() body: unknown): LogoutResponse {
+    // RefreshToken이 제공된 경우 무효화 처리
+    const refreshToken = typeof body === 'object' && body !== null && 
+      'refreshToken' in body ? (body as { refreshToken?: string }).refreshToken : undefined;
+    return this.authService.logout(refreshToken);
   }
 
   /**

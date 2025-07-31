@@ -49,6 +49,9 @@ export class AuthService {
   private readonly refreshTokenExpirationTime =
     process.env.REFRESH_TOKEN_EXPIRATION || '7d';
 
+  // 간단한 in-memory refresh token 저장소 (실제로는 Redis나 DB 사용 권장)
+  private readonly revokedTokens = new Set<string>();
+
   constructor(
     private readonly jwtService: JwtService,
     @InjectModel(UserModel.name)
@@ -192,6 +195,11 @@ export class AuthService {
    */
   async refreshTokens(refreshToken: string): Promise<RefreshTokenResponse> {
     try {
+      // 무효화된 토큰인지 확인
+      if (this.isTokenRevoked(refreshToken)) {
+        throw new UnauthorizedException('Refresh token has been revoked');
+      }
+
       const payload = this.jwtService.verify<JwtPayload>(refreshToken, {
         secret: this.jwtSecret,
       });
@@ -337,6 +345,29 @@ export class AuthService {
     } catch {
       throw new UnauthorizedException('Invalid or expired reset token');
     }
+  }
+
+  /**
+   * 로그아웃 (Refresh Token 무효화)
+   * @param refreshToken 무효화할 refresh token
+   * @returns 로그아웃 완료 메시지
+   */
+  logout(refreshToken?: string): { message: string } {
+    if (refreshToken) {
+      // Refresh Token을 무효화 목록에 추가
+      this.revokedTokens.add(refreshToken);
+    }
+
+    return { message: 'Logged out successfully' };
+  }
+
+  /**
+   * Refresh Token이 무효화되었는지 확인
+   * @param refreshToken 확인할 refresh token
+   * @returns 무효화 여부
+   */
+  isTokenRevoked(refreshToken: string): boolean {
+    return this.revokedTokens.has(refreshToken);
   }
 
   /**
