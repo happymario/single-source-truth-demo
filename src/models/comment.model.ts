@@ -244,8 +244,8 @@ CommentSchema.virtual('isDeletable').get(function () {
 
 // 스키마 미들웨어: 댓글 삭제 시 자동으로 상태 업데이트
 CommentSchema.pre('findOneAndUpdate', function () {
-  const update = this.getUpdate() as any;
-  if (update.isDeleted === true) {
+  const update = this.getUpdate() as Record<string, unknown>;
+  if (update && typeof update === 'object' && update.isDeleted === true) {
     update.deletedAt = new Date();
     update.status = 'deleted';
   }
@@ -253,8 +253,13 @@ CommentSchema.pre('findOneAndUpdate', function () {
 
 // 스키마 미들웨어: 댓글 수정 시 자동으로 편집 이력 추가
 CommentSchema.pre('findOneAndUpdate', function () {
-  const update = this.getUpdate() as any;
-  if (update.content && !update.isDeleted) {
+  const update = this.getUpdate() as Record<string, unknown>;
+  if (
+    update &&
+    typeof update === 'object' &&
+    update.content &&
+    !update.isDeleted
+  ) {
     update.isEdited = true;
     // 편집 이력은 서비스 레벨에서 처리
   }

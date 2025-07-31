@@ -48,19 +48,21 @@ export const CommentWithRepliesResponseSchema = CommentResponseSchema.extend({
 /**
  * 댓글 트리 구조 응답 스키마
  */
-export const CommentTreeResponseSchema: z.ZodType<CommentTreeResponse> = z.lazy(() =>
-  CommentResponseSchema.extend({
-    author: UserMasterSchema.pick({
-      id: true,
-      name: true,
-      avatar: true,
-      role: true,
-    }).optional(),
-    children: z.array(CommentTreeResponseSchema).default([]),
-  }),
+export const CommentTreeResponseSchema: z.ZodType<CommentTreeResponse> = z.lazy(
+  () =>
+    CommentResponseSchema.extend({
+      author: UserMasterSchema.pick({
+        id: true,
+        name: true,
+        avatar: true,
+        role: true,
+      }).optional(),
+      children: z.array(CommentTreeResponseSchema).default([]),
+    }),
 );
 
-export interface CommentTreeResponse extends z.infer<typeof CommentResponseSchema> {
+export interface CommentTreeResponse
+  extends z.infer<typeof CommentResponseSchema> {
   author?: {
     id: string;
     name: string;
@@ -124,17 +126,25 @@ export const CommentStatsResponseSchema = z.object({
   totalLikes: z.number().int().min(0),
   totalReports: z.number().int().min(0),
   averageDepth: z.number().min(0),
-  topCommenters: z.array(z.object({
-    userId: z.string(),
-    userName: z.string(),
-    commentCount: z.number().int().min(0),
-  })).optional(),
-  dailyStats: z.array(z.object({
-    date: z.string(), // YYYY-MM-DD 형식
-    comments: z.number().int().min(0),
-    likes: z.number().int().min(0),
-    reports: z.number().int().min(0),
-  })).optional(),
+  topCommenters: z
+    .array(
+      z.object({
+        userId: z.string(),
+        userName: z.string(),
+        commentCount: z.number().int().min(0),
+      }),
+    )
+    .optional(),
+  dailyStats: z
+    .array(
+      z.object({
+        date: z.string(), // YYYY-MM-DD 형식
+        comments: z.number().int().min(0),
+        likes: z.number().int().min(0),
+        reports: z.number().int().min(0),
+      }),
+    )
+    .optional(),
 });
 
 /**
