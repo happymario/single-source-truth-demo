@@ -7,6 +7,8 @@ import {
   CommentTreeNodeSchema,
   BulkCommentActionSchema,
   CommentFilterSchema,
+  CommentQuerySchema,
+  CommentTreeQuerySchema,
 } from '../../schemas/dto/comment.dto.schema';
 
 /**
@@ -19,3 +21,5 @@ export type CommentActionDto = z.infer<typeof CommentActionSchema>;
 export type CommentTreeNode = z.infer<typeof CommentTreeNodeSchema>;
 export type BulkCommentActionDto = z.infer<typeof BulkCommentActionSchema>;
 export type CommentFilterDto = z.infer<typeof CommentFilterSchema>;
+export type CommentQueryDto = z.infer<typeof CommentQuerySchema>;
+export type CommentTreeQueryDto = z.infer<typeof CommentTreeQuerySchema>;

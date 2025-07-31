@@ -71,3 +71,24 @@ export const CommentFilterSchema = z.object({
   dateFrom: z.date().optional(),
   dateTo: z.date().optional(),
 });
+
+/**
+ * 댓글 쿼리 DTO 스키마 (페이징 포함)
+ */
+export const CommentQuerySchema = z.object({
+  page: z.number().int().min(1).default(1),
+  limit: z.number().int().min(1).max(100).default(20),
+  sortBy: z.enum(['createdAt', 'updatedAt', 'likeCount']).default('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).default('asc'),
+  includeDeleted: z.boolean().default(false),
+  includeAuthor: z.boolean().default(false),
+  parentId: z.string().nullable().optional(),
+});
+
+/**
+ * 댓글 트리/스레드 쿼리 DTO 스키마
+ */
+export const CommentTreeQuerySchema = z.object({
+  includeDeleted: z.boolean().default(false),
+  includeAuthor: z.boolean().default(false),
+});
