@@ -206,7 +206,18 @@ describe('PostMapper', () => {
     it('should handle document with author populated', () => {
       const populatedDoc = {
         ...mockPostData,
-        authorId: mockUserData,
+        authorId: {
+          ...mockUserData,
+          toJSON: jest.fn().mockReturnValue({
+            id: '507f1f77bcf86cd799439012',
+            email: 'test@example.com',
+            name: 'Test User',
+            role: 'user',
+            isActive: true,
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01'),
+          }),
+        },
       };
 
       const result = PostMapper.populatedDocumentToResponse(
@@ -219,7 +230,19 @@ describe('PostMapper', () => {
     it('should handle document with categories populated', () => {
       const populatedDoc = {
         ...mockPostData,
-        categoryIds: [mockCategoryData],
+        categoryIds: [{
+          ...mockCategoryData,
+          toJSON: jest.fn().mockReturnValue({
+            id: '507f1f77bcf86cd799439013',
+            name: 'Test Category',
+            slug: 'test-category',
+            color: '#FF0000',
+            order: 0,
+            isActive: true,
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01'),
+          }),
+        }],
       };
 
       const result = PostMapper.populatedDocumentToResponse(
@@ -232,8 +255,31 @@ describe('PostMapper', () => {
     it('should handle document with all relations populated', () => {
       const populatedDoc = {
         ...mockPostData,
-        authorId: mockUserData,
-        categoryIds: [mockCategoryData],
+        authorId: {
+          ...mockUserData,
+          toJSON: jest.fn().mockReturnValue({
+            id: '507f1f77bcf86cd799439012',
+            email: 'test@example.com',
+            name: 'Test User',
+            role: 'user',
+            isActive: true,
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01'),
+          }),
+        },
+        categoryIds: [{
+          ...mockCategoryData,
+          toJSON: jest.fn().mockReturnValue({
+            id: '507f1f77bcf86cd799439013',
+            name: 'Test Category',
+            slug: 'test-category',
+            color: '#FF0000',
+            order: 0,
+            isActive: true,
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01'),
+          }),
+        }],
       };
 
       const result = PostMapper.populatedDocumentToResponse(

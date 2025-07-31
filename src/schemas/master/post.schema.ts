@@ -113,7 +113,10 @@ export const PostMasterSchema = z
     /**
      * 썸네일 이미지 URL (선택사항)
      */
-    thumbnail: z.string().refine(validator.isURL, 'Invalid URL format').optional(),
+    thumbnail: z
+      .string()
+      .refine(validator.isURL, 'Invalid URL format')
+      .optional(),
 
     /**
      * SEO 메타 제목

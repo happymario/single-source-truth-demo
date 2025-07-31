@@ -19,7 +19,16 @@ export const PostListQuerySchema = z.object({
   /**
    * 정렬 기준
    */
-  sortBy: z.enum(['createdAt', 'updatedAt', 'publishedAt', 'viewCount', 'likeCount', 'title']).default('createdAt'),
+  sortBy: z
+    .enum([
+      'createdAt',
+      'updatedAt',
+      'publishedAt',
+      'viewCount',
+      'likeCount',
+      'title',
+    ])
+    .default('createdAt'),
 
   /**
    * 정렬 순서

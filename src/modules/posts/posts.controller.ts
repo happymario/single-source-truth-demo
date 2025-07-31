@@ -11,9 +11,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { ZodBody } from '../../common/decorators/zod-body.decorator';
-import { ZodQuery } from '../../common/decorators/zod-query.decorator';
-import { ZodParam } from '../../common/decorators/zod-param.decorator';
+import { ZodBody, ZodQuery, ZodParam } from '../../common/decorators';
 import {
   CreatePostSchema,
   UpdatePostSchema,
@@ -24,9 +22,6 @@ import {
   PostFindQuerySchema,
   PostIdParamSchema,
   PostSlugParamSchema,
-  PostsByAuthorQuerySchema,
-  PostsByCategoryQuerySchema,
-  PostsByTagQuerySchema,
   PostStatsQuerySchema,
 } from '../../schemas/query/post.query.schema';
 import {
@@ -34,6 +29,11 @@ import {
   UpdatePostResponseSchema,
   DeletePostResponseSchema,
 } from '../../schemas/response/post.response.schema';
+import type {
+  CreatePostDto,
+  UpdatePostDto,
+  ChangePostStatusDto,
+} from '../../types/dto/post.dto.types';
 
 /**
  * 게시물 컨트롤러
@@ -48,9 +48,10 @@ export class PostsController {
    */
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@ZodBody(CreatePostSchema) createPostDto: unknown) {
-    const post = await this.postsService.create(createPostDto as any);
-    
+  async create(@Body() createPostDto: any) {
+    const validatedDto = CreatePostSchema.parse(createPostDto);
+    const post = await this.postsService.create(validatedDto);
+
     return CreatePostResponseSchema.parse({
       message: '게시물이 성공적으로 생성되었습니다.',
       post,
@@ -61,16 +62,16 @@ export class PostsController {
    * 게시물 목록 조회
    */
   @Get()
-  async findAll(@ZodQuery(PostListQuerySchema) query: unknown) {
-    return this.postsService.findAll(query as any);
+  async findAll(@ZodQuery(PostListQuerySchema) query: any) {
+    return this.postsService.findAll(query);
   }
 
   /**
    * 게시물 통계 조회
    */
   @Get('stats')
-  async getStats(@ZodQuery(PostStatsQuerySchema) query: unknown) {
-    return this.postsService.getStats(query as any);
+  async getStats(@ZodQuery(PostStatsQuerySchema) query: any) {
+    return this.postsService.getStats(query);
   }
 
   /**
@@ -105,11 +106,11 @@ export class PostsController {
    */
   @Get('author/:authorId')
   async findByAuthor(
-    @ZodParam(PostIdParamSchema) params: unknown,
-    @ZodQuery(PostListQuerySchema) query: unknown,
+    @ZodParam(PostIdParamSchema) params: any,
+    @ZodQuery(PostListQuerySchema) query: any,
   ) {
-    const { authorId } = params as any;
-    return this.postsService.findByAuthor(authorId, query as any);
+    const { authorId } = params as { authorId: string };
+    return this.postsService.findByAuthor(authorId, query);
   }
 
   /**
@@ -117,11 +118,11 @@ export class PostsController {
    */
   @Get('category/:categoryId')
   async findByCategory(
-    @ZodParam(PostIdParamSchema) params: unknown,
-    @ZodQuery(PostListQuerySchema) query: unknown,
+    @ZodParam(PostIdParamSchema) params: any,
+    @ZodQuery(PostListQuerySchema) query: any,
   ) {
-    const { categoryId } = params as any;
-    return this.postsService.findByCategory(categoryId, query as any);
+    const { categoryId } = params as { categoryId: string };
+    return this.postsService.findByCategory(categoryId, query);
   }
 
   /**
@@ -130,9 +131,9 @@ export class PostsController {
   @Get('tag/:tag')
   async findByTag(
     @Param('tag') tag: string,
-    @ZodQuery(PostListQuerySchema) query: unknown,
+    @ZodQuery(PostListQuerySchema) query: any,
   ) {
-    return this.postsService.findByTag(tag, query as any);
+    return this.postsService.findByTag(tag, query);
   }
 
   /**
@@ -140,11 +141,11 @@ export class PostsController {
    */
   @Get('id/:id')
   async findOneById(
-    @ZodParam(PostIdParamSchema) params: unknown,
-    @ZodQuery(PostFindQuerySchema) query: unknown,
+    @ZodParam(PostIdParamSchema) params: any,
+    @ZodQuery(PostFindQuerySchema) query: any,
   ) {
-    const { id } = params as any;
-    return this.postsService.findOne(id, query as any);
+    const { id } = params as { id: string };
+    return this.postsService.findOne(id, query);
   }
 
   /**
@@ -152,11 +153,11 @@ export class PostsController {
    */
   @Get(':slug')
   async findOneBySlug(
-    @ZodParam(PostSlugParamSchema) params: unknown,
-    @ZodQuery(PostFindQuerySchema) query: unknown,
+    @ZodParam(PostSlugParamSchema) params: any,
+    @ZodQuery(PostFindQuerySchema) query: any,
   ) {
-    const { slug } = params as any;
-    return this.postsService.findOne(slug, query as any);
+    const { slug } = params as { slug: string };
+    return this.postsService.findOne(slug, query);
   }
 
   /**
@@ -164,12 +165,13 @@ export class PostsController {
    */
   @Patch(':id')
   async update(
-    @ZodParam(PostIdParamSchema) params: unknown,
-    @ZodBody(UpdatePostSchema) updatePostDto: unknown,
+    @ZodParam(PostIdParamSchema) params: any,
+    @Body() updatePostDto: any,
   ) {
-    const { id } = params as any;
-    const post = await this.postsService.update(id, updatePostDto as any);
-    
+    const { id } = params as { id: string };
+    const validatedDto = UpdatePostSchema.parse(updatePostDto);
+    const post = await this.postsService.update(id, validatedDto);
+
     return UpdatePostResponseSchema.parse({
       message: '게시물이 성공적으로 수정되었습니다.',
       post,
@@ -181,12 +183,13 @@ export class PostsController {
    */
   @Patch(':id/status')
   async changeStatus(
-    @ZodParam(PostIdParamSchema) params: unknown,
-    @ZodBody(ChangePostStatusSchema) statusDto: unknown,
+    @ZodParam(PostIdParamSchema) params: any,
+    @Body() statusDto: any,
   ) {
-    const { id } = params as any;
-    const post = await this.postsService.changeStatus(id, statusDto as any);
-    
+    const { id } = params as { id: string };
+    const validatedDto = ChangePostStatusSchema.parse(statusDto);
+    const post = await this.postsService.changeStatus(id, validatedDto);
+
     return UpdatePostResponseSchema.parse({
       message: '게시물 상태가 성공적으로 변경되었습니다.',
       post,
@@ -198,10 +201,10 @@ export class PostsController {
    */
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  async remove(@ZodParam(PostIdParamSchema) params: unknown) {
-    const { id } = params as any;
+  async remove(@ZodParam(PostIdParamSchema) params: any) {
+    const { id } = params as { id: string };
     await this.postsService.remove(id);
-    
+
     return DeletePostResponseSchema.parse({
       message: '게시물이 성공적으로 삭제되었습니다.',
       deletedId: id,

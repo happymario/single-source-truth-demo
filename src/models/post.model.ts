@@ -216,18 +216,21 @@ PostSchema.index({ createdAt: -1 });
 PostSchema.index({ publishedAt: -1 });
 
 // 텍스트 검색 인덱스
-PostSchema.index({
-  title: 'text',
-  content: 'text',
-  tags: 'text',
-}, {
-  weights: {
-    title: 10,
-    tags: 5,
-    content: 1,
+PostSchema.index(
+  {
+    title: 'text',
+    content: 'text',
+    tags: 'text',
   },
-  name: 'post_text_index',
-});
+  {
+    weights: {
+      title: 10,
+      tags: 5,
+      content: 1,
+    },
+    name: 'post_text_index',
+  },
+);
 
 // 슬러그 유니크 인덱스
 PostSchema.index({ slug: 1 }, { unique: true });

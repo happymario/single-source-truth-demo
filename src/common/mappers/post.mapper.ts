@@ -2,8 +2,6 @@ import { PostDocument } from '../../models/post.model';
 import { UserDocument } from '../../models/user.model';
 import { CategoryDocument } from '../../models/category.model';
 import { Post } from '../../types/entities/post.types';
-import { User } from '../../types/entities/user.types';
-import { Category } from '../../types/entities/category.types';
 import {
   PostResponse,
   PostWithAuthorResponse,
@@ -167,15 +165,20 @@ export class PostMapper {
       authorId?: UserDocument;
       categoryIds?: CategoryDocument[];
     },
-  ): PostResponse | PostWithAuthorResponse | PostWithCategoriesResponse | PostWithRelationsResponse {
+  ):
+    | PostResponse
+    | PostWithAuthorResponse
+    | PostWithCategoriesResponse
+    | PostWithRelationsResponse {
     if (!document) {
       throw new Error('Document is required');
     }
 
-    const hasAuthor = document.authorId && typeof document.authorId === 'object';
-    const hasCategories = 
-      document.categoryIds && 
-      Array.isArray(document.categoryIds) && 
+    const hasAuthor =
+      document.authorId && typeof document.authorId === 'object';
+    const hasCategories =
+      document.categoryIds &&
+      Array.isArray(document.categoryIds) &&
       document.categoryIds.length > 0 &&
       typeof document.categoryIds[0] === 'object';
 
@@ -222,7 +225,12 @@ export class PostMapper {
       authorId?: UserDocument;
       categoryIds?: CategoryDocument[];
     })[],
-  ): (PostResponse | PostWithAuthorResponse | PostWithCategoriesResponse | PostWithRelationsResponse)[] {
+  ): (
+    | PostResponse
+    | PostWithAuthorResponse
+    | PostWithCategoriesResponse
+    | PostWithRelationsResponse
+  )[] {
     return documents.map((doc) => this.populatedDocumentToResponse(doc));
   }
 }

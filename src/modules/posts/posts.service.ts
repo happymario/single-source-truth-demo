@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
-  BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -13,7 +12,6 @@ import { PostMapper } from '../../common/mappers/post.mapper';
 import {
   CreatePostDto,
   UpdatePostDto,
-  PublishPostDto,
   ChangePostStatusDto,
   UpdatePostStatsDto,
 } from '../../types/dto/post.dto.types';
@@ -41,7 +39,8 @@ export class PostsService {
   constructor(
     @InjectModel(PostModel.name) private postModel: Model<PostDocument>,
     @InjectModel(UserModel.name) private userModel: Model<UserDocument>,
-    @InjectModel(CategoryModel.name) private categoryModel: Model<CategoryDocument>,
+    @InjectModel(CategoryModel.name)
+    private categoryModel: Model<CategoryDocument>,
   ) {}
 
   /**
@@ -84,7 +83,9 @@ export class PostsService {
   /**
    * 게시물 목록 조회 (페이지네이션, 필터링, 검색)
    */
-  async findAll(queryDto: z.infer<typeof PostListQuerySchema>): Promise<PostListResponse> {
+  async findAll(
+    queryDto: z.infer<typeof PostListQuerySchema>,
+  ): Promise<PostListResponse> {
     const {
       page,
       limit,
@@ -134,13 +135,14 @@ export class PostsService {
 
     // 날짜 범위 필터
     if (startDate || endDate) {
-      filter.createdAt = {};
+      const dateFilter: { $gte?: Date; $lte?: Date } = {};
       if (startDate) {
-        filter.createdAt.$gte = startDate;
+        dateFilter.$gte = startDate;
       }
       if (endDate) {
-        filter.createdAt.$lte = endDate;
+        dateFilter.$lte = endDate;
       }
+      filter.createdAt = dateFilter;
     }
 
     // 정렬 조건
@@ -152,12 +154,7 @@ export class PostsService {
 
     // 쿼리 실행
     const [posts, total] = await Promise.all([
-      this.postModel
-        .find(filter)
-        .sort(sort)
-        .skip(skip)
-        .limit(limit)
-        .exec(),
+      this.postModel.find(filter).sort(sort).skip(skip).limit(limit).exec(),
       this.postModel.countDocuments(filter),
     ]);
 
@@ -185,7 +182,12 @@ export class PostsService {
   async findOne(
     idOrSlug: string,
     queryDto?: z.infer<typeof PostFindQuerySchema>,
-  ): Promise<PostResponse | PostWithAuthorResponse | PostWithCategoriesResponse | PostWithRelationsResponse> {
+  ): Promise<
+    | PostResponse
+    | PostWithAuthorResponse
+    | PostWithCategoriesResponse
+    | PostWithRelationsResponse
+  > {
     const { include = [], incrementView = false } = queryDto || {};
 
     // ID 또는 슬러그로 조회
@@ -218,16 +220,21 @@ export class PostsService {
     }
 
     // Populate 여부에 따라 적절한 응답 변환
-    return PostMapper.populatedDocumentToResponse(post as PostDocument & {
-      authorId?: UserDocument;
-      categoryIds?: CategoryDocument[];
-    });
+    return PostMapper.populatedDocumentToResponse(
+      post as unknown as PostDocument & {
+        authorId?: UserDocument;
+        categoryIds?: CategoryDocument[];
+      },
+    );
   }
 
   /**
    * 게시물 수정
    */
-  async update(id: string, updatePostDto: UpdatePostDto): Promise<PostResponse> {
+  async update(
+    id: string,
+    updatePostDto: UpdatePostDto,
+  ): Promise<PostResponse> {
     const post = await this.postModel.findById(id);
 
     if (!post) {
@@ -264,13 +271,16 @@ export class PostsService {
       { new: true },
     );
 
-    return PostMapper.documentToResponse(updatedPost);
+    return PostMapper.documentToResponse(updatedPost!);
   }
 
   /**
    * 게시물 상태 변경
    */
-  async changeStatus(id: string, statusDto: ChangePostStatusDto): Promise<PostResponse> {
+  async changeStatus(
+    id: string,
+    statusDto: ChangePostStatusDto,
+  ): Promise<PostResponse> {
     const post = await this.postModel.findById(id);
 
     if (!post) {
@@ -278,29 +288,30 @@ export class PostsService {
     }
 
     // 발행 상태로 변경하는 경우 publishedAt 설정
-    const updateData: Partial<ChangePostStatusDto> = { status: statusDto.status };
+    const updateData: Partial<ChangePostStatusDto> = {
+      status: statusDto.status,
+    };
     if (statusDto.status === 'published' && !post.publishedAt) {
       updateData.publishedAt = statusDto.publishedAt || new Date();
     }
 
-    const updatedPost = await this.postModel.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true },
-    );
+    const updatedPost = await this.postModel.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
 
-    return PostMapper.documentToResponse(updatedPost);
+    return PostMapper.documentToResponse(updatedPost!);
   }
 
   /**
    * 게시물 통계 업데이트 (내부 사용)
    */
-  async updateStats(id: string, statsDto: UpdatePostStatsDto): Promise<PostResponse> {
-    const updatedPost = await this.postModel.findByIdAndUpdate(
-      id,
-      statsDto,
-      { new: true },
-    );
+  async updateStats(
+    id: string,
+    statsDto: UpdatePostStatsDto,
+  ): Promise<PostResponse> {
+    const updatedPost = await this.postModel.findByIdAndUpdate(id, statsDto, {
+      new: true,
+    });
 
     if (!updatedPost) {
       throw new NotFoundException('Post not found');
@@ -392,7 +403,10 @@ export class PostsService {
   /**
    * 게시물 통계 조회
    */
-  async getStats(queryDto?: z.infer<typeof PostStatsQuerySchema>): Promise<PostStatsResponse> {
+  async getStats(
+    queryDto?: z.infer<typeof PostStatsQuerySchema>,
+  ): Promise<PostStatsResponse> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { period = 'month', startDate, endDate } = queryDto || {};
 
     // 기본 통계

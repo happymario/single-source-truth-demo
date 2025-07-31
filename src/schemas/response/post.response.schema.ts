@@ -91,13 +91,17 @@ export const PostStatsResponseSchema = z.object({
   averageViewsPerPost: z.number().min(0),
   averageLikesPerPost: z.number().min(0),
   averageCommentsPerPost: z.number().min(0),
-  dailyStats: z.array(z.object({
-    date: z.string(), // YYYY-MM-DD 형식
-    posts: z.number().int().min(0),
-    views: z.number().int().min(0),
-    likes: z.number().int().min(0),
-    comments: z.number().int().min(0),
-  })).optional(),
+  dailyStats: z
+    .array(
+      z.object({
+        date: z.string(), // YYYY-MM-DD 형식
+        posts: z.number().int().min(0),
+        views: z.number().int().min(0),
+        likes: z.number().int().min(0),
+        comments: z.number().int().min(0),
+      }),
+    )
+    .optional(),
 });
 
 /**
