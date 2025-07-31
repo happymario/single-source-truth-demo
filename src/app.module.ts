@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { CommonModule } from './common/common.module';
 import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './modules/users/users.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { UsersModule } from './modules/users/users.module';
     DatabaseModule,
     // 기능 모듈들
     UsersModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
