@@ -20,9 +20,9 @@
 - [x] Comments 모듈 완성
 - [x] Comment 계층 구조 테스트
 
-### Story: Phase 5 - Auth 모듈 구현
-- [ ] Auth DTO 스키마 정의
-- [ ] JWT 전략 구현
-- [ ] AuthService 구현
-- [ ] AuthController 구현
-- [ ] Auth 통합 테스트
+### Story: Phase 5 - Auth 모듈 구현 ✅
+- [x] Auth DTO 스키마 정의
+- [x] JWT 전략 구현
+- [x] AuthService 구현
+- [x] AuthController 구현
+- [x] Auth 통합 테스트
