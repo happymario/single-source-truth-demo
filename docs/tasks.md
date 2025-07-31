@@ -6,16 +6,7 @@
 
 ### Story: Phase 0 - 기반 인프라 구축 ✅
 
-### Story: Phase 1 - User 컬렉션 구현
-- [ ] UserMasterSchema 정의
-- [ ] User DTO 스키마 파생 (Create, Update)
-- [ ] User 타입 추론 파일 생성
-- [ ] UserModel 구현 (BaseModel 상속)
-- [ ] UserMapper 구현
-- [ ] UsersService 구현
-- [ ] UsersController 구현
-- [ ] User 단위 테스트 작성
-- [ ] User E2E 테스트 작성
+### Story: Phase 1 - User 컬렉션 구현 ✅
 
 ### Story: Phase 2 - Category 컬렉션 구현
 - [ ] CategoryMasterSchema 정의
