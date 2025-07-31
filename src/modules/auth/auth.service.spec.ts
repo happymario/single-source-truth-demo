@@ -46,13 +46,38 @@ describe('AuthService', () => {
     verify: jest.fn(),
   };
 
-  const mockUserModel = {
-    findOne: jest.fn(),
-    findById: jest.fn(),
-    findByIdAndUpdate: jest.fn(),
-    create: jest.fn(),
-    save: jest.fn(),
+  const mockUserModel = function(userData: any) {
+    const now = new Date();
+    const savedData = {
+      ...userData,
+      _id: new Types.ObjectId(),
+      id: new Types.ObjectId().toHexString(),
+      createdAt: now,
+      updatedAt: now,
+      toJSON: function() {
+        return {
+          id: this.id,
+          email: this.email,
+          name: this.name,
+          role: this.role,
+          isActive: this.isActive,
+          createdAt: this.createdAt,
+          updatedAt: this.updatedAt,
+        };
+      },
+    };
+    
+    return {
+      ...userData,
+      save: jest.fn().mockResolvedValue(savedData),
+    };
   };
+
+  mockUserModel.findOne = jest.fn();
+  mockUserModel.findById = jest.fn();
+  mockUserModel.findByIdAndUpdate = jest.fn();
+  mockUserModel.create = jest.fn();
+  mockUserModel.save = jest.fn();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

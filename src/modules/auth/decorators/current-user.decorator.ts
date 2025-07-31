@@ -1,5 +1,12 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { UserDocument } from '../../../models/user.model';
+import type { UserDocument } from '../../../models/user.model';
+
+/**
+ * Request interface with user property
+ */
+interface RequestWithUser {
+  user: UserDocument;
+}
 
 /**
  * CurrentUser 데코레이터
@@ -15,8 +22,8 @@ import { UserDocument } from '../../../models/user.model';
  * ```
  */
 export const CurrentUser = createParamDecorator(
-  (data: unknown, context: ExecutionContext): UserDocument => {
-    const request = context.switchToHttp().getRequest();
+  (_data: unknown, context: ExecutionContext): UserDocument => {
+    const request = context.switchToHttp().getRequest<RequestWithUser>();
     return request.user;
   },
 );

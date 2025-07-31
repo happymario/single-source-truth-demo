@@ -126,7 +126,7 @@ export class AuthController {
     @Body() body: unknown,
   ): Promise<UpdateProfileResponse> {
     const updateProfileDto = UpdateProfileDtoSchema.parse(body);
-    return this.authService.updateProfile(user.id, updateProfileDto);
+    return this.authService.updateProfile(user.id as string, updateProfileDto);
   }
 
   /**
@@ -142,7 +142,10 @@ export class AuthController {
     @Body() body: unknown,
   ): Promise<ChangePasswordResponse> {
     const changePasswordDto = ChangePasswordDtoSchema.parse(body);
-    return this.authService.changePassword(user.id, changePasswordDto);
+    return this.authService.changePassword(
+      user.id as string,
+      changePasswordDto,
+    );
   }
 
   /**

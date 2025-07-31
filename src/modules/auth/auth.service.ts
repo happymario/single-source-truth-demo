@@ -162,7 +162,7 @@ export class AuthService {
    */
   generateTokens(user: UserDocument): TokenInfo {
     const payload: JwtPayload = {
-      sub: user.id,
+      sub: user.id as string,
       email: user.email,
       role: user.role,
     };

@@ -1,6 +1,13 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UserDocument } from '../../../models/user.model';
+import type { UserDocument } from '../../../models/user.model';
+
+/**
+ * Request interface with user property
+ */
+interface RequestWithUser {
+  user?: UserDocument;
+}
 
 /**
  * 사용자 역할 enum
@@ -16,7 +23,7 @@ export enum Role {
 export const ROLES_KEY = 'roles';
 export const Roles = (...roles: Role[]) => {
   return (
-    target: unknown,
+    target: object,
     propertyName?: string,
     descriptor?: PropertyDescriptor,
   ) => {
@@ -41,7 +48,8 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const { user } = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<RequestWithUser>();
+    const user = request.user;
 
     if (!user) {
       return false;
