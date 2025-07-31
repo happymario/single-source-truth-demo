@@ -5,6 +5,7 @@ import { CommonModule } from './common/common.module';
 import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './modules/users/users.module';
 import { CategoriesModule } from './modules/categories/categories.module';
+import { PostsModule } from './modules/posts/posts.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { CategoriesModule } from './modules/categories/categories.module';
     // 기능 모듈들
     UsersModule,
     CategoriesModule,
+    PostsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
