@@ -11,7 +11,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { ZodBody, ZodQuery, ZodParam } from '../../common/decorators';
+import { ZodQuery, ZodParam } from '../../common/decorators';
 import {
   CreatePostSchema,
   UpdatePostSchema,
@@ -29,11 +29,6 @@ import {
   UpdatePostResponseSchema,
   DeletePostResponseSchema,
 } from '../../schemas/response/post.response.schema';
-import type {
-  CreatePostDto,
-  UpdatePostDto,
-  ChangePostStatusDto,
-} from '../../types/dto/post.dto.types';
 
 /**
  * 게시물 컨트롤러

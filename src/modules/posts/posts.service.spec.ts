@@ -64,22 +64,19 @@ describe('PostsService', () => {
   };
 
   beforeEach(async () => {
-    const MockPostConstructor = jest.fn().mockImplementation(() => mockPost);
-    const mockPostModel = {
-      findOne: jest.fn(),
-      findById: jest.fn(),
-      countDocuments: jest.fn(),
-      find: jest.fn().mockReturnThis(),
-      sort: jest.fn().mockReturnThis(),
-      skip: jest.fn().mockReturnThis(),
-      limit: jest.fn().mockReturnThis(),
-      exec: jest.fn(),
-      findByIdAndUpdate: jest.fn(),
-      deleteOne: jest.fn(),
-      updateOne: jest.fn(),
-      aggregate: jest.fn(),
-    };
-    Object.setPrototypeOf(mockPostModel, MockPostConstructor);
+    const mockPostModel = jest.fn().mockImplementation(() => mockPost);
+    mockPostModel.findOne = jest.fn();
+    mockPostModel.findById = jest.fn();
+    mockPostModel.countDocuments = jest.fn();
+    mockPostModel.find = jest.fn().mockReturnThis();
+    mockPostModel.sort = jest.fn().mockReturnThis();
+    mockPostModel.skip = jest.fn().mockReturnThis();
+    mockPostModel.limit = jest.fn().mockReturnThis();
+    mockPostModel.exec = jest.fn();
+    mockPostModel.findByIdAndUpdate = jest.fn();
+    mockPostModel.deleteOne = jest.fn();
+    mockPostModel.updateOne = jest.fn();
+    mockPostModel.aggregate = jest.fn();
 
     const mockUserModel = {
       findById: jest.fn(),

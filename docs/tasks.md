@@ -10,13 +10,7 @@
 
 ### Story: Phase 2 - Category 컬렉션 구현 ✅
 
-### Story: Phase 3 - Post 컬렉션 구현
-- [ ] PostMasterSchema 정의 (관계 포함)
-- [ ] Post DTO 및 쿼리 스키마 구현
-- [ ] PostModel 구현 (관계 참조)
-- [ ] PostMapper 구현 (populate 로직)
-- [ ] Posts 모듈 완성
-- [ ] Post 관계형 데이터 테스트
+### Story: Phase 3 - Post 컬렉션 구현 ✅
 
 ### Story: Phase 4 - Comment 컬렉션 구현
 - [ ] CommentMasterSchema 정의 (자기 참조 포함)

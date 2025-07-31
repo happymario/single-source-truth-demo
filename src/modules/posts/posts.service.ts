@@ -434,9 +434,18 @@ export class PostsService {
       ]),
     ]);
 
-    const totalViews = totalViewsResult[0]?.total || 0;
-    const totalLikes = totalLikesResult[0]?.total || 0;
-    const totalComments = totalCommentsResult[0]?.total || 0;
+    const totalViews =
+      totalViewsResult.length > 0
+        ? (totalViewsResult[0] as { total: number }).total
+        : 0;
+    const totalLikes =
+      totalLikesResult.length > 0
+        ? (totalLikesResult[0] as { total: number }).total
+        : 0;
+    const totalComments =
+      totalCommentsResult.length > 0
+        ? (totalCommentsResult[0] as { total: number }).total
+        : 0;
 
     return {
       totalPosts,
