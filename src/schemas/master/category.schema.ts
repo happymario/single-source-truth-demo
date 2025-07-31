@@ -84,8 +84,3 @@ export const CategoryMasterSchema = z.object({
    */
   updatedAt: z.date(),
 });
-
-/**
- * CategoryMasterSchema 타입 검증
- */
-export type CategoryMaster = z.infer<typeof CategoryMasterSchema>;

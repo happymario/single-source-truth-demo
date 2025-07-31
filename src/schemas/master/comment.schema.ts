@@ -119,8 +119,3 @@ export const CommentMasterSchema = z
       .optional(),
   })
   .merge(TimestampsSchema);
-
-/**
- * CommentMasterSchema 타입 추론
- */
-export type CommentMaster = z.infer<typeof CommentMasterSchema>;

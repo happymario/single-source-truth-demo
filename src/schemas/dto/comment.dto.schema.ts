@@ -38,17 +38,13 @@ export const CommentActionSchema = z.object({
 });
 
 /**
- * 댓글 트리 구조 DTO 스키마
+ * 댓글 트리 구조 DTO 스키마 (재귀 스키마)
  */
-export const CommentTreeNodeSchema: z.ZodType<CommentTreeNode> = z.lazy(() =>
+export const CommentTreeNodeSchema = z.lazy(() =>
   CommentMasterSchema.extend({
     children: z.array(CommentTreeNodeSchema).default([]),
   }),
 );
-
-export interface CommentTreeNode extends z.infer<typeof CommentMasterSchema> {
-  children: CommentTreeNode[];
-}
 
 /**
  * 댓글 대량 작업 DTO 스키마
