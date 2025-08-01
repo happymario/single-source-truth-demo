@@ -13,6 +13,12 @@ import {
 import { CommentsService } from './comments.service';
 import { ZodBody, ZodQuery } from '../../common/decorators';
 import {
+  CreateCommentSchema,
+  UpdateCommentSchema,
+  CommentQuerySchema,
+  CommentTreeQuerySchema,
+} from '../../schemas/dto/comment.dto.schema';
+import type {
   CreateCommentDto,
   UpdateCommentDto,
   CommentQueryDto,
