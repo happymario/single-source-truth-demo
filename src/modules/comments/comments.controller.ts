@@ -11,12 +11,13 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
+import { ZodBody, ZodQuery } from '../../common/decorators';
 import {
-  CreateCommentSchema,
-  UpdateCommentSchema,
-  CommentQuerySchema,
-  CommentTreeQuerySchema,
-} from '../../schemas/dto/comment.dto.schema';
+  CreateCommentDto,
+  UpdateCommentDto,
+  CommentQueryDto,
+  CommentTreeQueryDto,
+} from '../../types/dto/comment.dto.types';
 import {
   CommentResponse,
   CommentWithAuthorResponse,
@@ -34,15 +35,14 @@ export class CommentsController {
    */
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ZodBody(CreateCommentSchema)
   async create(
-    @Body() createCommentDto: unknown,
+    @Body() createCommentDto: CreateCommentDto,
   ): Promise<CommentWithAuthorResponse> {
-    const validatedDto = CreateCommentSchema.parse(createCommentDto);
-
     // TODO: 실제 구현에서는 JWT에서 사용자 ID를 추출해야 함
     const authorId = '507f1f77bcf86cd799439011'; // 임시 하드코딩
 
-    return this.commentsService.create(validatedDto, authorId);
+    return this.commentsService.create(createCommentDto, authorId);
   }
 
   /**
@@ -51,10 +51,9 @@ export class CommentsController {
   @Get('post/:postId')
   async findByPost(
     @Param('postId') postId: string,
-    @Query() query: unknown,
+    @ZodQuery(CommentQuerySchema) query: CommentQueryDto,
   ): Promise<CommentListResponse> {
-    const validatedQuery = CommentQuerySchema.parse(query);
-    return this.commentsService.findByPost(postId, validatedQuery);
+    return this.commentsService.findByPost(postId, query);
   }
 
   /**
@@ -63,10 +62,9 @@ export class CommentsController {
   @Get('post/:postId/tree')
   async findTreeByPost(
     @Param('postId') postId: string,
-    @Query() query: unknown,
+    @ZodQuery(CommentTreeQuerySchema) query: CommentTreeQueryDto,
   ): Promise<CommentTreeResponse[]> {
-    const validatedQuery = CommentTreeQuerySchema.parse(query);
-    return this.commentsService.findTreeByPost(postId, validatedQuery);
+    return this.commentsService.findTreeByPost(postId, query);
   }
 
   /**
@@ -75,10 +73,9 @@ export class CommentsController {
   @Get('post/:postId/thread')
   async findThreadByPost(
     @Param('postId') postId: string,
-    @Query() query: unknown,
+    @ZodQuery(CommentTreeQuerySchema) query: CommentTreeQueryDto,
   ): Promise<CommentThreadResponse[]> {
-    const validatedQuery = CommentTreeQuerySchema.parse(query);
-    return this.commentsService.findThreadByPost(postId, validatedQuery);
+    return this.commentsService.findThreadByPost(postId, query);
   }
 
   /**
@@ -87,10 +84,9 @@ export class CommentsController {
   @Get('author/:authorId')
   async findByAuthor(
     @Param('authorId') authorId: string,
-    @Query() query: unknown,
+    @ZodQuery(CommentQuerySchema) query: CommentQueryDto,
   ): Promise<CommentListResponse> {
-    const validatedQuery = CommentQuerySchema.parse(query);
-    return this.commentsService.findByAuthor(authorId, validatedQuery);
+    return this.commentsService.findByAuthor(authorId, query);
   }
 
   /**
@@ -109,16 +105,15 @@ export class CommentsController {
    * 댓글 수정
    */
   @Patch(':id')
+  @ZodBody(UpdateCommentSchema)
   async update(
     @Param('id') id: string,
-    @Body() updateCommentDto: unknown,
+    @Body() updateCommentDto: UpdateCommentDto,
   ): Promise<CommentWithAuthorResponse> {
-    const validatedDto = UpdateCommentSchema.parse(updateCommentDto);
-
     // TODO: 실제 구현에서는 JWT에서 사용자 ID를 추출해야 함
     const userId = '507f1f77bcf86cd799439011'; // 임시 하드코딩
 
-    return this.commentsService.update(id, validatedDto, userId);
+    return this.commentsService.update(id, updateCommentDto, userId);
   }
 
   /**
