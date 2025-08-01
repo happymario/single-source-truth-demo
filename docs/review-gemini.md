@@ -1,36 +1,31 @@
-# PRD 기반 구현 검토 결과
+# PRD 기반 구현 검토 보고서 (Gemini)
 
 ## 1. 전체 평가
 
-- 프로젝트는 PRD에 명시된 **Zod 중심의 Single Source of Truth 아키텍처**를 매우 성공적으로 구현함.
-- `schemas` → `types` → `models`로 이어지는 타입 추론 및 파생 규칙이 코드 전반에 일관되게 적용됨.
-- `any` 타입 사용 금지, 계층적 디렉토리 구조 등 핵심 원칙을 잘 준수하고 있음.
+- 프로젝트는 PRD에 명시된 **Zod 중심의 Single Source of Truth 아키텍처**를 성공적으로 채택하고 있으며, 코드 전반에 걸쳐 일관성 있게 적용하려는 노력이 보입니다.
+- `schemas` → `types` → `models`로 이어지는 타입 추론 및 파생 규칙이 대부분의 모듈에서 잘 준수되고 있습니다.
 
-## 2. PRD와 구현의 주요 차이점
+## 2. PRD 원칙 준수 현황
 
-### 2.1. `CommentMapper`의 역할 범위
-- **PRD:** 매퍼(Mapper)는 Document, Entity, Response 간의 순수한 데이터 구조 변환을 담당.
-- **구현:** `src/common/mappers/comment.mapper.ts` 파일에 데이터 변환 외의 비즈니스 로직이 포함되어 있음.
-  - `buildCommentTree`, `buildCommentThread`: 댓글의 계층 구조를 생성하는 로직.
-  - `isCommentEditable`, `isCommentDeletable`: 댓글의 수정/삭제 가능 여부를 판단하는 비즈니스 규칙.
-- **권장 사항:** 해당 로직들을 `CommentsService`로 이전하여 매퍼는 데이터 변환에만 집중하고, 서비스 레이어가 비즈니스 규칙을 처리하도록 역할을 명확히 분리하는 것을 권장.
+### 2.1. Single Source of Truth 원칙
+- **준수:** 대부분의 Entity, DTO, Response 타입이 `schemas/master`에 정의된 Zod 스키마로부터 `z.infer`를 통해 파생되고 있습니다.
+- **개선 필요:**
+  - `src/schemas/dto/comment.dto.schema.ts`: `CommentTreeNodeSchema`와 함께 `CommentTreeNode` 인터페이스가 정의되어 있습니다. 이 인터페이스는 `types/dto/comment.dto.types.ts` 파일로 이동하여 `z.infer`로 추론해야 합니다.
+  - `src/schemas/master/*.schema.ts`: 스키마 파일 내에 `export type ... = z.infer<...>` 구문이 존재합니다. PRD 원칙에 따라 모든 타입 추론은 `types` 디렉토리 하위에서 이루어져야 합니다.
+
+### 2.2. `any` 타입 사용 금지 원칙
+- **준수:** `any` 타입의 직접적인 사용은 대부분의 모듈에서 잘 회피되고 있습니다.
+- **개선 필요:** `src/modules/comments/comments.controller.ts`의 메서드들이 `@Body()`, `@Query()` 파라미터에 `unknown` 타입을 사용하고 내부에서 수동으로 `parse()`를 호출합니다. 이는 PRD에서 권장하는 `@ZodBody`, `@ZodQuery` 데코레이터를 사용하여 컨트롤러 레벨에서 타입을 명확히 하는 패턴으로 개선할 수 있습니다.
+
+### 2.3. 아키텍처 및 설계
+- **`CommentMapper`의 역할 범위 (개선 필요):**
+  - **현상:** `src/common/mappers/comment.mapper.ts` 파일에 `buildCommentTree`, `buildCommentThread`, `isCommentEditable` 등 데이터 변환 이상의 복잡한 비즈니스 로직이 포함되어 있습니다.
+  - **권장 사항:** 이는 계층 분리 원칙에 따라 `CommentsService`로 이전하는 것이 바람직합니다. 매퍼는 순수한 데이터 구조 변환에만 집중하고, 서비스는 비즈니스 규칙을 처리하도록 역할을 명확히 분리해야 합니다.
 
 ## 3. 미구현 또는 확인 필요 사항
 
-### 3.1. 일부 API 엔드포인트 미구현
-PRD의 `API 엔드포인트 설계` 목록 중 다음 기능들의 구체적인 구현이 확인되지 않아 추가 구현이 필요함.
+- **`POST /auth/logout`:** `auth.service.ts`의 `logout` 메서드가 실제 Refresh Token을 무효화하는 로직 없이 단순히 성공 메시지만 반환하고 있습니다. 실제 운영을 위해서는 토큰을 블랙리스트에 추가하는 등의 무효화 처리가 필요합니다.
 
-- **게시물 좋아요 기능:**
-  - `POST /posts/:id/like`
-  - `PostMasterSchema`에 `likeCount` 필드는 존재하지만, 실제 좋아요를 처리하는 서비스 로직 및 컨트롤러 구현이 필요.
-- **인증 관련 기능:**
-  - `POST /auth/logout`
-  - 로그아웃 처리 로직 (예: Refresh Token 무효화) 구현이 필요.
+## 4. 결론
 
-## 4. 코드 개선 제안
-
-### 4.1. `BaseModel`의 `id` Getter 개선
-- **현상:** `src/models/base.model.ts`의 `id` getter가 `return this._id?.toHexString();`로 구현되어 있음.
-- **문제점:** Mongoose 모델의 `_id`는 항상 존재하므로 옵셔널 체이닝(`?`)이 불필요하며, 코드를 읽는 개발자에게 `_id`가 없을 수도 있다는 오해를 줄 수 있음.
-- **개선안:** `return this._id.toHexString();`으로 변경하여 코드의 명확성을 높일 것을 제안.
-
+프로젝트는 PRD의 핵심 사상을 매우 잘 이해하고 구현하였으나, 일부 영역에서 아키텍처 일관성을 더욱 높일 수 있는 개선점이 존재합니다. 특히 `CommentMapper`의 역할을 재조정하고, 일부 남아있는 타입 정의 위치를 바로잡는다면 PRD의 목표를 완벽하게 달성할 수 있을 것입니다.
