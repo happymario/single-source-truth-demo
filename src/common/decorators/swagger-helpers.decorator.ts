@@ -73,11 +73,20 @@ function isValidOpenAPIType(schema: unknown): schema is OpenAPISchema {
   if (typeof schema !== 'object' || schema === null) {
     return false;
   }
-  
+
   const openApiSchema = schema as OpenAPISchema;
-  const validTypes = ['string', 'number', 'boolean', 'object', 'array', 'integer'];
-  
-  return openApiSchema.type === undefined || validTypes.includes(openApiSchema.type);
+  const validTypes = [
+    'string',
+    'number',
+    'boolean',
+    'object',
+    'array',
+    'integer',
+  ];
+
+  return (
+    openApiSchema.type === undefined || validTypes.includes(openApiSchema.type)
+  );
 }
 
 /**
@@ -104,7 +113,7 @@ export function ApiParamFromZod(
     required: true,
   };
 
-  if (schema._example !== undefined) {
+  if ('_example' in schema && schema._example !== undefined) {
     options.example = schema._example;
   }
 
