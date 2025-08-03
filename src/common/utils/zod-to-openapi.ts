@@ -32,6 +32,19 @@ interface ZodCheck {
 }
 
 /**
+ * 타입 가드 함수들
+ */
+function hasZodDef(schema: unknown): schema is ZodSchemaWithDef {
+  return (
+    typeof schema === 'object' &&
+    schema !== null &&
+    '_def' in schema &&
+    typeof (schema as any)._def === 'object' &&
+    (schema as any)._def !== null
+  );
+}
+
+/**
  * Zod 스키마를 OpenAPI 3.0 스키마로 변환합니다.
  */
 export function zodToOpenAPI(schema: ZodSchema & { _example?: any }): any {
