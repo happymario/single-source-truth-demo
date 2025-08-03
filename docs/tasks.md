@@ -30,11 +30,11 @@
 - [x] console.log 디버깅 코드 제거
 - [x] 파일: `/src/common/decorators/swagger-helpers.decorator.ts`
 
-#### Task 1.5: extractExampleFromSchema 함수 개선
-- [ ] 매개변수 타입을 ZodSchema로 명시
-- [ ] _def 접근을 타입 가드로 보호
-- [ ] 반환 타입을 명시적으로 정의
-- [ ] 파일: `/src/common/decorators/swagger-helpers.decorator.ts`
+#### Task 1.5: extractExampleFromSchema 함수 개선 ✅
+- [x] 매개변수 타입을 ZodSchema로 명시
+- [x] _def 접근을 타입 가드로 보호
+- [x] 반환 타입을 명시적으로 정의
+- [x] 파일: `/src/common/decorators/swagger-helpers.decorator.ts`
 
 ### Story 2: zod-to-openapi.ts 타입 안전성 개선
 **목표**: zod-to-openapi.ts 파일의 모든 린트 에러 해결
