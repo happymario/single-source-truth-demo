@@ -145,10 +145,11 @@ function convertSchema(schema: ZodSchema): any {
   }
 
   if (schema instanceof ZodString) {
-    const checks = (schema as any)._def.checks || [];
-    const result: any = { type: 'string' };
+    if (hasZodDef(schema) && 'checks' in schema._def && Array.isArray(schema._def.checks)) {
+      const checks = schema._def.checks as ZodCheck[];
+      const result: any = { type: 'string' };
 
-    for (const check of checks) {
+      for (const check of checks) {
       if (check.kind === 'email') {
         result.format = 'email';
       } else if (check.kind === 'url') {
@@ -162,26 +163,32 @@ function convertSchema(schema: ZodSchema): any {
       } else if (check.kind === 'regex') {
         result.pattern = check.regex.source;
       }
-    }
 
-    return result;
+      return result;
+    }
+    
+    return { type: 'string' };
   }
 
   if (schema instanceof ZodNumber) {
-    const checks = (schema as any)._def.checks || [];
-    const result: any = { type: 'number' };
+    if (hasZodDef(schema) && 'checks' in schema._def && Array.isArray(schema._def.checks)) {
+      const checks = schema._def.checks as ZodCheck[];
+      const result: any = { type: 'number' };
 
-    for (const check of checks) {
-      if (check.kind === 'min') {
-        result.minimum = check.value;
-      } else if (check.kind === 'max') {
-        result.maximum = check.value;
-      } else if (check.kind === 'int') {
-        result.type = 'integer';
+      for (const check of checks) {
+        if (check.kind === 'min') {
+          result.minimum = check.value;
+        } else if (check.kind === 'max') {
+          result.maximum = check.value;
+        } else if (check.kind === 'int') {
+          result.type = 'integer';
+        }
       }
-    }
 
-    return result;
+      return result;
+    }
+    
+    return { type: 'number' };
   }
 
   if (schema instanceof ZodBoolean) {
@@ -224,10 +231,14 @@ function convertSchema(schema: ZodSchema): any {
   }
 
   if (schema instanceof ZodUnion) {
-    const options = (schema as any)._def.options;
-    return {
-      oneOf: options.map((option: ZodSchema) => convertSchema(option)),
-    };
+    if (hasZodDef(schema) && 'options' in schema._def && Array.isArray(schema._def.options)) {
+      const options = schema._def.options as ZodSchema[];
+      return {
+        oneOf: options.map((option: ZodSchema) => convertSchema(option)),
+      };
+    }
+    
+    return { type: 'object' };
   }
 
   // 기본값
