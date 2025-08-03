@@ -56,6 +56,10 @@ function isZodEffects(schema: unknown): boolean {
   return hasZodDef(schema) && hasTypeName(schema, 'ZodEffects');
 }
 
+function isZodDefault(schema: unknown): boolean {
+  return hasZodDef(schema) && hasTypeName(schema, 'ZodDefault');
+}
+
 /**
  * Zod 스키마를 OpenAPI 3.0 스키마로 변환합니다.
  */
