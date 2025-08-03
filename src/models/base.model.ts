@@ -12,13 +12,13 @@ export abstract class BaseModel {
    * 실제 DB에는 _id로 저장되지만 virtual을 통해 id로 접근 가능
    */
   @Prop({ type: mongoose.Schema.Types.ObjectId, auto: true })
-  _id: mongoose.Types.ObjectId;
+  _id?: mongoose.Types.ObjectId;
 
   /**
    * Virtual field: _id를 문자열 id로 변환
    */
   get id(): string {
-    return this._id.toHexString();
+    return this._id?.toHexString() || '';
   }
 
   /**
