@@ -117,7 +117,7 @@ export function ApiParamFromZod(
     options.example = schema._example;
   }
 
-  if (openApiSchema.description) {
+  if (isValidOpenAPIType(openApiSchema) && openApiSchema.description) {
     options.description = openApiSchema.description;
   }
 
