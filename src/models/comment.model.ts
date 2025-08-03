@@ -13,7 +13,7 @@ export type CommentDocument = HydratedDocument<CommentModel>;
  * Comment 타입을 정확히 구현하며 BaseModel을 상속
  */
 @Schema({
-  collection: 'comments',
+  collection: 'zod_comments',
   ...SCHEMA_OPTIONS,
 })
 export class CommentModel extends BaseModel implements Comment {

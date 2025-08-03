@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { ZodBody, ZodQuery } from '../../common/decorators';
+import { ApiQueryFromZod } from '../../common/decorators/swagger-helpers.decorator';
 import { ObjectIdSchema } from '../../schemas/shared/common.schema';
 import {
   CreateCategorySchema,
@@ -52,6 +53,7 @@ export class CategoriesController {
    * GET /categories
    */
   @Get()
+  @ApiQueryFromZod(CategoryQuerySchema)
   async findAll(
     @ZodQuery(CategoryQuerySchema) query: CategoryQueryDto,
   ): Promise<CategoryListResponse> {

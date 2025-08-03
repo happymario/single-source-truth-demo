@@ -1,26 +1,42 @@
 import { z } from 'zod';
 import { CommentMasterSchema } from '../master/comment.schema';
 import { ObjectIdSchema } from '../shared/common.schema';
+import { withExample } from '../../common/utils/zod-with-example';
 
 /**
  * 댓글 생성 DTO 스키마
  */
-export const CreateCommentSchema = CommentMasterSchema.pick({
-  content: true,
-  authorId: true,
-  postId: true,
-}).extend({
-  parentId: ObjectIdSchema.optional(), // 대댓글인 경우
-  mentionedUserIds: z.array(ObjectIdSchema).optional(),
-});
+export const CreateCommentSchema = withExample(
+  CommentMasterSchema.pick({
+    content: true,
+    authorId: true,
+    postId: true,
+  }).extend({
+    parentId: ObjectIdSchema.optional(), // 대댓글인 경우
+    mentionedUserIds: z.array(ObjectIdSchema).optional(),
+  }),
+  {
+    content: '좋은 글 감사합니다! NestJS와 Zod 조합이 정말 강력하네요.',
+    authorId: '507f1f77bcf86cd799439011',
+    postId: '507f191e810c19729de860ea',
+    parentId: '507f1f77bcf86cd799439014',
+    mentionedUserIds: ['507f1f77bcf86cd799439015'],
+  },
+);
 
 /**
  * 댓글 수정 DTO 스키마
  */
-export const UpdateCommentSchema = z.object({
-  content: CommentMasterSchema.shape.content,
-  mentionedUserIds: z.array(ObjectIdSchema).optional(),
-});
+export const UpdateCommentSchema = withExample(
+  z.object({
+    content: CommentMasterSchema.shape.content,
+    mentionedUserIds: z.array(ObjectIdSchema).optional(),
+  }),
+  {
+    content: '수정된 댓글입니다. 추가 정보를 포함했습니다.',
+    mentionedUserIds: ['507f1f77bcf86cd799439016'],
+  },
+);
 
 /**
  * 댓글 삭제 DTO 스키마 (soft delete)
@@ -38,7 +54,7 @@ export const CommentActionSchema = z.object({
 });
 
 /**
- * 댓글 트리 구조 DTO 스키마
+ * 댓글 트리 구조 DTO 스키마 (재귀 스키마)
  */
 export const CommentTreeNodeSchema: z.ZodType<CommentTreeNode> = z.lazy(() =>
   CommentMasterSchema.extend({

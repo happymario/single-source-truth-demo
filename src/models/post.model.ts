@@ -13,7 +13,7 @@ export type PostDocument = HydratedDocument<PostModel>;
  * Post 타입을 정확히 구현하며 BaseModel을 상속
  */
 @Schema({
-  collection: 'posts',
+  collection: 'zod_posts',
   ...SCHEMA_OPTIONS,
 })
 export class PostModel extends BaseModel implements Post {

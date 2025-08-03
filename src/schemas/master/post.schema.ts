@@ -146,8 +146,3 @@ export const PostMasterSchema = z
     publishedAt: z.date().nullable().optional(),
   })
   .merge(TimestampsSchema);
-
-/**
- * PostMasterSchema 타입 추론
- */
-export type PostMaster = z.infer<typeof PostMasterSchema>;

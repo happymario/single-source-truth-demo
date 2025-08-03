@@ -18,7 +18,7 @@ export abstract class BaseModel {
    * Virtual field: _id를 문자열 id로 변환
    */
   get id(): string {
-    return this._id?.toHexString();
+    return this._id.toHexString();
   }
 
   /**

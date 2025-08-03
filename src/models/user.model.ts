@@ -13,7 +13,7 @@ export type UserDocument = HydratedDocument<UserModel>;
  * User 타입을 정확히 구현하며 BaseModel을 상속
  */
 @Schema({
-  collection: 'users',
+  collection: 'zod_users',
   ...SCHEMA_OPTIONS,
 })
 export class UserModel extends BaseModel implements User {
