@@ -1,40 +1,123 @@
-# 개발 작업 목록 (우선순위 순)
+# 개발 작업 관리
 
-이 문서는 `review-cursor.md`와 `review-gemini.md`의 교차 검증 결과를 바탕으로 생성된 실행 가능한 개발 작업 목록입니다.
+## Epic: 린트 에러 해결 및 타입 안전성 강화
 
----
+### Story 1: swagger-helpers.decorator.ts 타입 안전성 개선
+**목표**: swagger-helpers.decorator.ts 파일의 모든 린트 에러 해결
 
-## 🔴 Priority 1: 즉시 수정 (블로커 해소)
+#### Task 1.1: 타입 인터페이스 정의
+- [ ] OpenAPISchema 인터페이스 정의
+- [ ] ApiParamConfig 인터페이스 정의  
+- [ ] ApiQueryConfig 인터페이스 정의
+- [ ] 파일: `/src/common/decorators/swagger-helpers.decorator.ts`
 
-*PRD의 핵심 원칙을 위반하여 타입 안정성을 심각하게 저해하는 문제들입니다. 최우선으로 해결해야 합니다.*
+#### Task 1.2: 타입 가드 함수 구현
+- [ ] isZodObject 타입 가드 함수 추가
+- [ ] hasZodDef 타입 가드 함수 추가
+- [ ] isValidOpenAPIType 검증 함수 추가
+- [ ] 파일: `/src/common/decorators/swagger-helpers.decorator.ts`
 
-- [ ] **1. `Posts` 모듈 전체 타입 재정의 및 데코레이터 적용**
-  - **문제점:** `posts.controller.ts`와 `posts.service.ts`에서 `any` 타입이 광범위하게 사용되고 있으며, `@ZodBody` 등의 데코레이터가 누락되었습니다. (Cursor 지적)
-  - **조치:**
-    - 컨트롤러와 서비스의 모든 `any` 타입을 `types` 디렉토리에서 추론된 DTO 및 Entity 타입으로 교체합니다.
-    - 컨트롤러 메서드에 `@ZodBody`, `@ZodQuery`, `@ZodParam` 데코레이터를 적용하여 런타임 유효성 검사를 활성화합니다.
-  - **참고 파일:** `review-cursor.md` (1, 3, 4번 항목)
+#### Task 1.3: ApiParamFromZod 함수 타입 안전성 개선
+- [ ] options 변수 타입을 ApiParamConfig로 변경
+- [ ] schema._example 접근을 안전한 방식으로 변경
+- [ ] openApiSchema 속성 접근을 타입 가드로 보호
+- [ ] 파일: `/src/common/decorators/swagger-helpers.decorator.ts`
 
----
+#### Task 1.4: ApiQueryFromZod 함수 타입 안전성 개선
+- [ ] fieldSchema 타입 캐스팅을 안전한 방식으로 변경
+- [ ] fieldOpenApi 속성 접근을 타입 가드로 보호
+- [ ] options 변수 타입을 ApiQueryConfig로 변경
+- [ ] console.log 디버깅 코드 제거
+- [ ] 파일: `/src/common/decorators/swagger-helpers.decorator.ts`
 
-## 🟡 Priority 2: 구조적 개선 (아키텍처 일관성 확보)
+#### Task 1.5: extractExampleFromSchema 함수 개선
+- [ ] 매개변수 타입을 ZodSchema로 명시
+- [ ] _def 접근을 타입 가드로 보호
+- [ ] 반환 타입을 명시적으로 정의
+- [ ] 파일: `/src/common/decorators/swagger-helpers.decorator.ts`
 
-*프로젝트의 장기적인 유지보수성과 확장성을 위해 아키텍처의 일관성을 바로잡는 작업들입니다.*
+### Story 2: zod-to-openapi.ts 타입 안전성 개선
+**목표**: zod-to-openapi.ts 파일의 모든 린트 에러 해결
 
-- [ ] **2. `Single Source of Truth` 원칙 위반 수정**
-  - **문제점:** 스키마 파일 내에 `interface` 또는 `type` 별칭이 직접 정의되어 있습니다. (Cursor, Gemini 공통 지적)
-  - **조치:**
-    - `src/schemas/dto/comment.dto.schema.ts`의 `CommentTreeNode` 인터페이스를 Zod의 재귀적 스키마 정의(`z.lazy`)를 사용하여 `types/dto/comment.dto.types.ts`에서 타입으로 추론하도록 수정합니다.
-    - 모든 `schemas/master/*.schema.ts` 파일에 존재하는 `export type ... = z.infer<...>` 구문을 해당 엔티티의 `types/entities/*.types.ts` 파일로 이동시킵니다.
-  - **참고 파일:** `review-cursor.md` (2번 항목), `review-gemini.md` (2.1 항목)
+#### Task 2.1: Zod 내부 타입 인터페이스 정의
+- [ ] ZodDef 인터페이스 정의
+- [ ] ZodSchemaWithDef 인터페이스 정의
+- [ ] ZodCheck 인터페이스 정의
+- [ ] 파일: `/src/common/utils/zod-to-openapi.ts`
 
-- [ ] **3. `CommentMapper` 역할 분리 리팩토링**
-  - **문제점:** `CommentMapper`에 데이터 변환 외의 비즈니스 로직(트리 구조 생성, 편집/삭제 가능 여부 판단 등)이 포함되어 있습니다. (Gemini 지적)
-  - **조치:** 해당 로직들을 `CommentsService`로 이전하여 매퍼는 데이터 변환에만 집중하고, 서비스 레이어가 비즈니스 규칙을 처리하도록 역할을 명확히 분리합니다.
-  - **참고 파일:** `review-gemini.md` (2.3 항목)
+#### Task 2.2: 타입 가드 함수 구현
+- [ ] hasZodDef 타입 가드 함수 추가
+- [ ] hasTypeName 타입 가드 함수 추가
+- [ ] isZodEffects 타입 가드 함수 추가
+- [ ] isZodDefault 타입 가드 함수 추가
+- [ ] 파일: `/src/common/utils/zod-to-openapi.ts`
 
-- [ ] **4. `Comments` 컨트롤러 리팩토링**
-  - **문제점:** `comments.controller.ts`에서 `@Body()`, `@Query()` 파라미터에 `unknown` 타입을 사용하고 수동으로 `parse()`를 호출하고 있습니다. (Gemini 지적)
-  - **조치:** PRD 패턴에 따라 `@ZodBody`, `@ZodQuery` 데코레이터를 사용하도록 리팩토링하여 코드의 일관성을 높입니다.
-  - **참고 파일:** `review-gemini.md` (2.2 항목)
+#### Task 2.3: convertSchema 함수 ZodEffects 처리 개선
+- [ ] ZodEffects 타입 체크를 타입 가드로 변경
+- [ ] _def.schema 접근을 안전한 방식으로 변경
+- [ ] _def.effect 접근을 안전한 방식으로 변경
+- [ ] 파일: `/src/common/utils/zod-to-openapi.ts`
 
+#### Task 2.4: convertSchema 함수 ZodDefault 처리 개선
+- [ ] ZodDefault 타입 체크를 타입 가드로 변경
+- [ ] _def.innerType 접근을 안전한 방식으로 변경
+- [ ] _def.defaultValue 접근을 안전한 방식으로 변경
+- [ ] 파일: `/src/common/utils/zod-to-openapi.ts`
+
+#### Task 2.5: convertSchema 함수 기타 타입 처리 개선
+- [ ] ZodString checks 배열 접근을 안전하게 변경
+- [ ] ZodNumber checks 배열 접근을 안전하게 변경
+- [ ] ZodUnion options 접근을 안전하게 변경
+- [ ] 파일: `/src/common/utils/zod-to-openapi.ts`
+
+### Story 3: 기타 파일 린트 에러 수정
+**목표**: 나머지 파일들의 린트 에러 해결
+
+#### Task 3.1: database.module.ts 수정
+- [ ] useFactory 함수에서 불필요한 async 키워드 제거
+- [ ] 파일: `/src/database/database.module.ts`
+
+#### Task 3.2: roles.guard.ts 수정
+- [ ] Reflector.get 호출 시 타입 안전성 개선
+- [ ] 파일: `/src/modules/auth/guards/roles.guard.ts`
+
+#### Task 3.3: comments.service.ts 수정
+- [ ] findByIdAndUpdate 호출 시 string 타입 보장
+- [ ] concat 메서드 호출 시 타입 안전성 개선
+- [ ] 파일: `/src/modules/comments/comments.service.ts`
+
+### Story 4: 검증 및 테스트
+**목표**: 수정사항 검증 및 품질 보증
+
+#### Task 4.1: 린트 검사
+- [ ] `npm run lint` 실행하여 모든 에러 해결 확인
+- [ ] 경고(warning) 수준 이슈 검토 및 필요시 수정
+
+#### Task 4.2: 타입 체크
+- [ ] `npm run build` 실행하여 타입 에러 없음 확인
+- [ ] TypeScript 컴파일 성공 확인
+
+#### Task 4.3: 기능 테스트
+- [ ] Swagger 문서 생성 정상 동작 확인
+- [ ] API 파라미터 및 쿼리 문서화 정상 동작 확인
+- [ ] 예제 데이터 표시 정상 동작 확인
+
+#### Task 4.4: 단위 테스트 실행
+- [ ] `npm run test` 실행하여 기존 테스트 통과 확인
+- [ ] 필요시 수정된 코드에 대한 테스트 추가
+
+## 완료된 Story
+
+### ✅ Swagger 문서화 시스템 구축 (완료)
+- [x] @ZodBody 데코레이터 Swagger 통합
+- [x] withExample 유틸리티 구현 및 모든 스키마 적용  
+- [x] ApiParamFromZod, ApiQueryFromZod 헬퍼 함수 구현
+- [x] 모든 컨트롤러에 Swagger 헬퍼 적용
+- [x] 쿼리 파라미터 타입 및 예제 데이터 정상 출력 확인
+
+## 작업 원칙
+
+1. **단일 책임**: 각 태스크는 하나의 명확한 목적만 가짐
+2. **점진적 개선**: 파일별로 순차적 수정
+3. **검증 필수**: 각 스토리 완료 후 빌드 및 린트 체크
+4. **롤백 가능**: 문제 발생 시 이전 상태로 복구 가능한 단위로 작업
