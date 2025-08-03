@@ -96,15 +96,24 @@ function convertSchema(schema: ZodSchema): any {
   }
 
   // ZodDefault 처리
-  if ((schema as any)._def?.typeName === 'ZodDefault') {
-    const innerSchema = (schema as any)._def.innerType;
-    const result = convertSchema(innerSchema);
-    const defaultValue = (schema as any)._def.defaultValue();
-
-    return {
-      ...result,
-      default: defaultValue,
-    };
+  if (isZodDefault(schema)) {
+    if (hasZodDef(schema) && 'innerType' in schema._def) {
+      const innerSchema = schema._def.innerType as ZodSchema;
+      const result = convertSchema(innerSchema);
+      
+      // defaultValue 접근을 안전하게 처리
+      if (hasZodDef(schema) && 'defaultValue' in schema._def && 
+          typeof schema._def.defaultValue === 'function') {
+        const defaultValue = schema._def.defaultValue();
+        
+        return {
+          ...result,
+          default: defaultValue,
+        };
+      }
+      
+      return result;
+    }
   }
 
   if (schema instanceof ZodObject) {
