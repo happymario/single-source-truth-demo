@@ -1,17 +1,44 @@
-import { ZodSchema, ZodObject, ZodArray, ZodString, ZodNumber, ZodBoolean, ZodDate, ZodEnum, ZodNullable, ZodOptional, ZodUnion, ZodLiteral } from 'zod';
+import {
+  ZodSchema,
+  ZodObject,
+  ZodArray,
+  ZodString,
+  ZodNumber,
+  ZodBoolean,
+  ZodDate,
+  ZodEnum,
+  ZodNullable,
+  ZodOptional,
+  ZodUnion,
+  ZodLiteral,
+} from 'zod';
 
 /**
  * Zod 스키마를 OpenAPI 3.0 스키마로 변환합니다.
  */
-export function zodToOpenAPI(schema: ZodSchema): any {
+export function zodToOpenAPI(schema: ZodSchema & { _example?: any }): any {
+  const result = convertSchema(schema);
+
+  // _example 메타데이터가 있으면 추가
+  if (schema._example !== undefined) {
+    result.example = schema._example;
+  }
+
+  return result;
+}
+
+/**
+ * 실제 스키마 변환 로직
+ */
+function convertSchema(schema: ZodSchema): any {
   if (schema instanceof ZodObject) {
     const shape = schema.shape;
     const properties: any = {};
     const required: string[] = [];
 
     for (const [key, value] of Object.entries(shape)) {
-      properties[key] = zodToOpenAPI(value as ZodSchema);
-      
+      properties[key] = convertSchema(value as ZodSchema);
+
       // Optional이 아닌 필드는 required에 추가
       if (!(value instanceof ZodOptional)) {
         required.push(key);
@@ -28,7 +55,7 @@ export function zodToOpenAPI(schema: ZodSchema): any {
   if (schema instanceof ZodArray) {
     return {
       type: 'array',
-      items: zodToOpenAPI((schema as any)._def.type),
+      items: convertSchema((schema as any)._def.type),
     };
   }
 
@@ -89,13 +116,18 @@ export function zodToOpenAPI(schema: ZodSchema): any {
 
   if (schema instanceof ZodLiteral) {
     return {
-      type: typeof schema.value === 'string' ? 'string' : typeof schema.value === 'number' ? 'number' : 'boolean',
+      type:
+        typeof schema.value === 'string'
+          ? 'string'
+          : typeof schema.value === 'number'
+            ? 'number'
+            : 'boolean',
       const: schema.value,
     };
   }
 
   if (schema instanceof ZodNullable) {
-    const innerSchema = zodToOpenAPI((schema as any)._def.innerType);
+    const innerSchema = convertSchema((schema as any)._def.innerType);
     return {
       ...innerSchema,
       nullable: true,
@@ -103,13 +135,13 @@ export function zodToOpenAPI(schema: ZodSchema): any {
   }
 
   if (schema instanceof ZodOptional) {
-    return zodToOpenAPI((schema as any)._def.innerType);
+    return convertSchema((schema as any)._def.innerType);
   }
 
   if (schema instanceof ZodUnion) {
     const options = (schema as any)._def.options;
     return {
-      oneOf: options.map((option: ZodSchema) => zodToOpenAPI(option)),
+      oneOf: options.map((option: ZodSchema) => convertSchema(option)),
     };
   }
 
