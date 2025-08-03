@@ -151,32 +151,29 @@ export function ApiQueryFromZod(
       const example = extractExampleFromSchema(schema);
 
       for (const [key, fieldSchema] of Object.entries(shape)) {
+        if (!isZodObject(fieldSchema) && !hasZodDef(fieldSchema)) {
+          continue;
+        }
+
         const fieldOpenApi = zodToOpenAPI(fieldSchema as ZodSchema);
 
-        // 디버깅용 로그
-        console.log(`Field: ${key}`, {
-          fieldSchema: fieldSchema._def,
-          fieldOpenApi,
-          example: example ? example[key] : undefined,
-        });
-
         // ApiQuery는 스칼라 값만 받으므로 type과 example만 추출
-        const options: any = {
+        const options: ApiQueryConfig = {
           name: key,
           required: false, // Query 파라미터는 대부분 선택사항
         };
 
         // 타입 설정 - ApiQuery가 기대하는 형식으로
-        if (fieldOpenApi.type === 'number') {
+        if (isValidOpenAPIType(fieldOpenApi) && fieldOpenApi.type === 'number') {
           options.type = Number;
-        } else if (fieldOpenApi.type === 'boolean') {
+        } else if (isValidOpenAPIType(fieldOpenApi) && fieldOpenApi.type === 'boolean') {
           options.type = Boolean;
-        } else if (fieldOpenApi.type === 'string') {
+        } else if (isValidOpenAPIType(fieldOpenApi) && fieldOpenApi.type === 'string') {
           options.type = String;
         }
 
         // enum 처리
-        if (fieldOpenApi.enum) {
+        if (isValidOpenAPIType(fieldOpenApi) && 'enum' in fieldOpenApi && fieldOpenApi.enum) {
           options.enum = fieldOpenApi.enum;
         }
 
@@ -187,11 +184,11 @@ export function ApiQueryFromZod(
         // 특별히 required가 필요한 경우만 true로 설정하는 로직을 추가할 수 있음
         // 현재는 모든 query parameter를 optional로 처리
 
-        if (example && example[key] !== undefined) {
+        if (example && typeof example === 'object' && key in example && example[key] !== undefined) {
           options.example = example[key];
         }
 
-        if (fieldOpenApi.description) {
+        if (isValidOpenAPIType(fieldOpenApi) && 'description' in fieldOpenApi && fieldOpenApi.description) {
           options.description = fieldOpenApi.description;
         }
 
@@ -201,16 +198,16 @@ export function ApiQueryFromZod(
     } else {
       // 단일 스키마인 경우
       const openApiSchema = zodToOpenAPI(schema);
-      const options: any = {
+      const queryOptions: Record<string, unknown> = {
         schema: openApiSchema,
         required: false,
       };
 
-      if ((schema as any)._example !== undefined) {
-        options.example = (schema as any)._example;
+      if (hasZodDef(schema) && '_example' in schema && schema._example !== undefined) {
+        queryOptions.example = (schema as any)._example;
       }
 
-      ApiQuery(options)(target, propertyKey, descriptor);
+      ApiQuery(queryOptions)(target, propertyKey, descriptor);
     }
   };
 }
