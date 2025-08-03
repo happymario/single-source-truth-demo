@@ -163,7 +163,7 @@ export function ApiQueryFromZod(
       const example = extractExampleFromSchema(schema);
 
       for (const [key, fieldSchema] of Object.entries(shape)) {
-        if (!isZodObject(fieldSchema) && !hasZodDef(fieldSchema)) {
+        if (!isZodObject(fieldSchema as ZodSchema) && !hasZodDef(fieldSchema)) {
           continue;
         }
 
@@ -276,7 +276,7 @@ function extractExampleFromSchema(schema: ZodSchema): ExampleValue | undefined {
     const result: Record<string, unknown> = {};
 
     for (const [key, fieldSchema] of Object.entries(shape)) {
-      if (isZodObject(fieldSchema) || hasZodDef(fieldSchema)) {
+      if (isZodObject(fieldSchema as ZodSchema) || hasZodDef(fieldSchema)) {
         const fieldExample = extractExampleFromSchema(fieldSchema as ZodSchema);
         if (fieldExample !== undefined) {
           result[key] = fieldExample;
