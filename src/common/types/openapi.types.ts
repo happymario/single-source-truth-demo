@@ -31,7 +31,7 @@ export interface OpenAPISchema {
   additionalProperties?: boolean | OpenAPISchema;
 
   // Enums and constants
-  enum?: unknown[];
+  enum?: string[];
   const?: unknown;
 
   // Composition

@@ -152,10 +152,18 @@ function convertSchema(schema: ZodSchema): OpenAPISchema {
   }
 
   if (schema instanceof ZodArray) {
-    return {
-      type: 'array',
-      items: convertSchema((schema as ZodArray<ZodSchema>)._def.type),
-    };
+    const arraySchema = schema as ZodArray<ZodSchema>;
+    if (
+      arraySchema._def &&
+      'type' in arraySchema._def &&
+      arraySchema._def.type
+    ) {
+      return {
+        type: 'array',
+        items: convertSchema(arraySchema._def.type as unknown as ZodSchema),
+      };
+    }
+    return { type: 'array', items: { type: 'object' } };
   }
 
   if (schema instanceof ZodString) {
@@ -164,7 +172,7 @@ function convertSchema(schema: ZodSchema): OpenAPISchema {
       'checks' in schema._def &&
       Array.isArray(schema._def.checks)
     ) {
-      const checks = schema._def.checks as ZodCheck[];
+      const checks = schema._def.checks as unknown as ZodCheck[];
       const result: OpenAPISchema = { type: 'string' };
 
       for (const check of checks) {
@@ -195,7 +203,7 @@ function convertSchema(schema: ZodSchema): OpenAPISchema {
       'checks' in schema._def &&
       Array.isArray(schema._def.checks)
     ) {
-      const checks = schema._def.checks as ZodCheck[];
+      const checks = schema._def.checks as unknown as ZodCheck[];
       const result: OpenAPISchema = { type: 'number' };
 
       for (const check of checks) {
@@ -225,7 +233,7 @@ function convertSchema(schema: ZodSchema): OpenAPISchema {
   if (schema instanceof ZodEnum) {
     return {
       type: 'string',
-      enum: schema.options,
+      enum: schema.options.map(String),
     };
   }
 
