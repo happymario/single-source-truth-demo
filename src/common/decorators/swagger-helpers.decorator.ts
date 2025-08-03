@@ -298,7 +298,12 @@ function extractExampleFromSchema(schema: ZodSchema): ExampleValue | undefined {
     'defaultValue' in schema._def &&
     typeof schema._def.defaultValue === 'function'
   ) {
-    return schema._def.defaultValue() as ExampleValue;
+    try {
+      const defaultValue = (schema._def.defaultValue as () => unknown)();
+      return defaultValue as ExampleValue;
+    } catch {
+      return undefined;
+    }
   }
 
   // ZodEffects (withExample로 감싸진 경우)
