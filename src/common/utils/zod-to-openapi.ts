@@ -44,6 +44,14 @@ function hasZodDef(schema: unknown): schema is ZodSchemaWithDef {
   );
 }
 
+function hasTypeName(schema: ZodSchemaWithDef, typeName: string): boolean {
+  return (
+    'typeName' in schema._def &&
+    typeof schema._def.typeName === 'string' &&
+    schema._def.typeName === typeName
+  );
+}
+
 /**
  * Zod 스키마를 OpenAPI 3.0 스키마로 변환합니다.
  */
