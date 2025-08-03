@@ -341,7 +341,7 @@ export function ApiParamsFromZod(
   params: Record<string, ZodSchema & { _example?: any }>,
 ): MethodDecorator {
   return (
-    target: any,
+    target: object,
     propertyKey: string | symbol,
     descriptor: PropertyDescriptor,
   ) => {
