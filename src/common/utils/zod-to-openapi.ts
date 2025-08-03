@@ -85,9 +85,14 @@ function convertSchema(schema: ZodSchema): any {
       const result = convertSchema(innerSchema);
 
       // coerce의 경우 타입 정보 유지
-      if (hasZodDef(schema) && 'effect' in schema._def && 
-          typeof schema._def.effect === 'object' && schema._def.effect !== null &&
-          'type' in schema._def.effect && schema._def.effect.type === 'preprocess') {
+      if (
+        hasZodDef(schema) &&
+        'effect' in schema._def &&
+        typeof schema._def.effect === 'object' &&
+        schema._def.effect !== null &&
+        'type' in schema._def.effect &&
+        schema._def.effect.type === 'preprocess'
+      ) {
         return result;
       }
 
@@ -100,18 +105,21 @@ function convertSchema(schema: ZodSchema): any {
     if (hasZodDef(schema) && 'innerType' in schema._def) {
       const innerSchema = schema._def.innerType as ZodSchema;
       const result = convertSchema(innerSchema);
-      
+
       // defaultValue 접근을 안전하게 처리
-      if (hasZodDef(schema) && 'defaultValue' in schema._def && 
-          typeof schema._def.defaultValue === 'function') {
+      if (
+        hasZodDef(schema) &&
+        'defaultValue' in schema._def &&
+        typeof schema._def.defaultValue === 'function'
+      ) {
         const defaultValue = schema._def.defaultValue();
-        
+
         return {
           ...result,
           default: defaultValue,
         };
       }
-      
+
       return result;
     }
   }

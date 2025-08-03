@@ -266,18 +266,29 @@ function extractExampleFromSchema(schema: ZodSchema): unknown {
   }
 
   // ZodDefault의 경우 기본값 사용
-  if (hasZodDef(schema) && '_def' in schema && schema._def && 
-      typeof schema._def === 'object' && 'typeName' in schema._def && 
-      schema._def.typeName === 'ZodDefault' && 
-      'defaultValue' in schema._def && typeof schema._def.defaultValue === 'function') {
+  if (
+    hasZodDef(schema) &&
+    '_def' in schema &&
+    schema._def &&
+    typeof schema._def === 'object' &&
+    'typeName' in schema._def &&
+    schema._def.typeName === 'ZodDefault' &&
+    'defaultValue' in schema._def &&
+    typeof schema._def.defaultValue === 'function'
+  ) {
     return schema._def.defaultValue();
   }
 
   // ZodEffects (withExample로 감싸진 경우)
-  if (hasZodDef(schema) && '_def' in schema && schema._def && 
-      typeof schema._def === 'object' && 'typeName' in schema._def && 
-      schema._def.typeName === 'ZodEffects' && 
-      'schema' in schema._def) {
+  if (
+    hasZodDef(schema) &&
+    '_def' in schema &&
+    schema._def &&
+    typeof schema._def === 'object' &&
+    'typeName' in schema._def &&
+    schema._def.typeName === 'ZodEffects' &&
+    'schema' in schema._def
+  ) {
     return extractExampleFromSchema(schema._def.schema as ZodSchema);
   }
 
