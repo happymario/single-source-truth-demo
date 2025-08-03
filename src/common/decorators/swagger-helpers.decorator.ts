@@ -216,21 +216,23 @@ export function ApiQueryFromZod(
  * 스키마에서 example 값을 추출하는 헬퍼 함수
  * 중첩된 스키마(extend, merge)에서도 example을 찾음
  */
-function extractExampleFromSchema(schema: any): any {
+function extractExampleFromSchema(schema: ZodSchema): unknown {
   // 직접 _example이 있는 경우
-  if (schema._example) {
+  if ('_example' in schema && schema._example) {
     return schema._example;
   }
 
   // ZodObject의 경우 shape에서 각 필드의 example 수집
   if (schema instanceof ZodObject) {
     const shape = schema.shape;
-    const result: any = {};
+    const result: Record<string, unknown> = {};
 
     for (const [key, fieldSchema] of Object.entries(shape)) {
-      const fieldExample = extractExampleFromSchema(fieldSchema);
-      if (fieldExample !== undefined) {
-        result[key] = fieldExample;
+      if (isZodObject(fieldSchema) || hasZodDef(fieldSchema)) {
+        const fieldExample = extractExampleFromSchema(fieldSchema as ZodSchema);
+        if (fieldExample !== undefined) {
+          result[key] = fieldExample;
+        }
       }
     }
 
@@ -238,13 +240,19 @@ function extractExampleFromSchema(schema: any): any {
   }
 
   // ZodDefault의 경우 기본값 사용
-  if (schema._def?.typeName === 'ZodDefault') {
+  if (hasZodDef(schema) && '_def' in schema && schema._def && 
+      typeof schema._def === 'object' && 'typeName' in schema._def && 
+      schema._def.typeName === 'ZodDefault' && 
+      'defaultValue' in schema._def && typeof schema._def.defaultValue === 'function') {
     return schema._def.defaultValue();
   }
 
   // ZodEffects (withExample로 감싸진 경우)
-  if (schema._def?.typeName === 'ZodEffects') {
-    return extractExampleFromSchema(schema._def.schema);
+  if (hasZodDef(schema) && '_def' in schema && schema._def && 
+      typeof schema._def === 'object' && 'typeName' in schema._def && 
+      schema._def.typeName === 'ZodEffects' && 
+      'schema' in schema._def) {
+    return extractExampleFromSchema(schema._def.schema as ZodSchema);
   }
 
   return undefined;
