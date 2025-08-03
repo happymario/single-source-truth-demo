@@ -11,7 +11,10 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ZodBody, ZodQuery } from '../../common/decorators';
-import { ApiParamFromZod, ApiQueryFromZod } from '../../common/decorators/swagger-helpers.decorator';
+import {
+  ApiParamFromZod,
+  ApiQueryFromZod,
+} from '../../common/decorators/swagger-helpers.decorator';
 import { ObjectIdSchema } from '../../schemas/shared/common.schema';
 import {
   CreateUserSchema,

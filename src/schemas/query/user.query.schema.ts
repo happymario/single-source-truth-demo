@@ -9,13 +9,13 @@ export const UserQuerySchema = withExample(
     // 페이지네이션
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(10),
-    
+
     // 정렬
     sortBy: z
       .enum(['name', 'email', 'createdAt', 'updatedAt', 'lastLoginAt'])
       .default('createdAt'),
     sortOrder: z.enum(['asc', 'desc']).default('desc'),
-    
+
     // 검색 및 필터링
     /**
      * 이름으로 검색
@@ -45,5 +45,5 @@ export const UserQuerySchema = withExample(
     name: '홍',
     role: 'user',
     isActive: true,
-  }
+  },
 );

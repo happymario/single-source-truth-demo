@@ -12,7 +12,10 @@ import {
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { ZodQuery, ZodParam, ZodBody } from '../../common/decorators';
-import { ApiQueryFromZod, ApiParamFromZod } from '../../common/decorators/swagger-helpers.decorator';
+import {
+  ApiQueryFromZod,
+  ApiParamFromZod,
+} from '../../common/decorators/swagger-helpers.decorator';
 import {
   CreatePostSchema,
   UpdatePostSchema,

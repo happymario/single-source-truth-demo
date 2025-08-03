@@ -14,14 +14,17 @@ import { ZodValidationPipe } from '../pipes/zod-validation.pipe';
  * ```
  */
 export const ZodParam = createParamDecorator(
-  (data: { key: string; schema: ZodSchema } | ZodSchema, ctx: ExecutionContext) => {
+  (
+    data: { key: string; schema: ZodSchema } | ZodSchema,
+    ctx: ExecutionContext,
+  ) => {
     const request = ctx.switchToHttp().getRequest<{
       params: Record<string, string>;
     }>();
-    
+
     // 단일 스키마로 전체 params 검증하는 경우
     if ('_def' in data) {
-      const schema = data as ZodSchema;
+      const schema = data;
       const pipe = new ZodValidationPipe(schema);
       return pipe.transform(request.params, {
         type: 'param',
@@ -29,7 +32,7 @@ export const ZodParam = createParamDecorator(
         metatype: undefined,
       });
     }
-    
+
     // key와 schema가 제공된 경우 (레거시 지원)
     if (data && typeof data === 'object' && 'key' in data && 'schema' in data) {
       const param = request.params[data.key];
@@ -40,7 +43,7 @@ export const ZodParam = createParamDecorator(
         metatype: undefined,
       });
     }
-    
+
     return request.params;
   },
 );

@@ -35,12 +35,12 @@ function convertSchema(schema: ZodSchema): any {
   if ((schema as any)._def?.typeName === 'ZodEffects') {
     const innerSchema = (schema as any)._def.schema;
     const result = convertSchema(innerSchema);
-    
+
     // coerce의 경우 타입 정보 유지
     if ((schema as any)._def.effect?.type === 'preprocess') {
       return result;
     }
-    
+
     return result;
   }
 
@@ -49,7 +49,7 @@ function convertSchema(schema: ZodSchema): any {
     const innerSchema = (schema as any)._def.innerType;
     const result = convertSchema(innerSchema);
     const defaultValue = (schema as any)._def.defaultValue();
-    
+
     return {
       ...result,
       default: defaultValue,

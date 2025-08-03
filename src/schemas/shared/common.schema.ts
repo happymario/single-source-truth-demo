@@ -8,7 +8,7 @@ export const ObjectIdSchema = withExample(
   z.string().regex(/^[0-9a-fA-F]{24}$/, {
     message: 'Invalid MongoDB ObjectId format',
   }),
-  '507f1f77bcf86cd799439011'
+  '507f1f77bcf86cd799439011',
 );
 
 /**
@@ -30,7 +30,7 @@ export const PaginationSchema = withExample(
   {
     page: 1,
     limit: 10,
-  }
+  },
 );
 
 /**
