@@ -49,6 +49,17 @@ interface ApiQueryConfig {
 }
 
 /**
+ * 타입 가드 함수들
+ */
+
+/**
+ * ZodObject인지 확인하는 타입 가드
+ */
+function isZodObject(schema: ZodSchema): schema is ZodObject<any> {
+  return schema instanceof ZodObject;
+}
+
+/**
  * ZodParam과 함께 사용하여 Swagger 문서화를 추가하는 헬퍼 함수
  *
  * @example
