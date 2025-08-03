@@ -98,7 +98,7 @@ export function ApiParamFromZod(
 ): MethodDecorator {
   const openApiSchema = zodToOpenAPI(schema);
 
-  const options: any = {
+  const options: ApiParamConfig = {
     name,
     schema: openApiSchema,
     required: true,
