@@ -105,7 +105,7 @@ export function ApiParamFromZod(
   name: string,
   schema: ZodSchema & { _example?: unknown },
 ): MethodDecorator {
-  const openApiSchema = zodToOpenAPI(schema);
+  const openApiSchema: OpenAPISchema = zodToOpenAPI(schema);
 
   const options: ApiParamConfig = {
     name,
@@ -219,7 +219,7 @@ export function ApiQueryFromZod(
       }
     } else {
       // 단일 스키마인 경우
-      const openApiSchema = zodToOpenAPI(schema);
+      const openApiSchema: OpenAPISchema = zodToOpenAPI(schema);
       const queryOptions: Record<string, unknown> = {
         schema: openApiSchema,
         required: false,
@@ -230,7 +230,9 @@ export function ApiQueryFromZod(
         '_example' in schema &&
         schema._example !== undefined
       ) {
-        queryOptions.example = (schema as any)._example;
+        queryOptions.example = (
+          schema as ZodSchema & { _example: unknown }
+        )._example;
       }
 
       ApiQuery(queryOptions)(target, propertyKey, descriptor);
