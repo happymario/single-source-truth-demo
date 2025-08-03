@@ -214,10 +214,11 @@ export function ApiQueryFromZod(
         if (
           example &&
           typeof example === 'object' &&
+          example !== null &&
           key in example &&
-          example[key] !== undefined
+          (example as Record<string, unknown>)[key] !== undefined
         ) {
-          options.example = example[key];
+          options.example = (example as Record<string, unknown>)[key];
         }
 
         if (
