@@ -12,6 +12,7 @@ import {
   ZodUnion,
   ZodLiteral,
 } from 'zod';
+import { OpenAPISchema } from '../types/openapi.types';
 
 /**
  * Zod 내부 타입 정의
@@ -29,6 +30,7 @@ interface ZodSchemaWithDef {
 interface ZodCheck {
   kind: string;
   value?: unknown;
+  message?: string;
   regex?: RegExp;
   [key: string]: unknown;
 }
@@ -41,8 +43,8 @@ function hasZodDef(schema: unknown): schema is ZodSchemaWithDef {
     typeof schema === 'object' &&
     schema !== null &&
     '_def' in schema &&
-    typeof (schema as any)._def === 'object' &&
-    (schema as any)._def !== null
+    typeof (schema as ZodSchemaWithDef)._def === 'object' &&
+    (schema as ZodSchemaWithDef)._def !== null
   );
 }
 
@@ -65,7 +67,9 @@ function isZodDefault(schema: unknown): boolean {
 /**
  * Zod 스키마를 OpenAPI 3.0 스키마로 변환합니다.
  */
-export function zodToOpenAPI(schema: ZodSchema & { _example?: any }): any {
+export function zodToOpenAPI(
+  schema: ZodSchema & { _example?: unknown },
+): OpenAPISchema {
   const result = convertSchema(schema);
 
   // _example 메타데이터가 있으면 추가
@@ -79,7 +83,7 @@ export function zodToOpenAPI(schema: ZodSchema & { _example?: any }): any {
 /**
  * 실제 스키마 변환 로직
  */
-function convertSchema(schema: ZodSchema): any {
+function convertSchema(schema: ZodSchema): OpenAPISchema {
   // ZodEffects (z.coerce 등) 처리
   if (isZodEffects(schema)) {
     if (hasZodDef(schema) && 'schema' in schema._def) {
@@ -114,7 +118,7 @@ function convertSchema(schema: ZodSchema): any {
         'defaultValue' in schema._def &&
         typeof schema._def.defaultValue === 'function'
       ) {
-        const defaultValue = schema._def.defaultValue();
+        const defaultValue = (schema._def.defaultValue as () => unknown)();
 
         return {
           ...result,
@@ -128,7 +132,7 @@ function convertSchema(schema: ZodSchema): any {
 
   if (schema instanceof ZodObject) {
     const shape = schema.shape;
-    const properties: any = {};
+    const properties: Record<string, OpenAPISchema> = {};
     const required: string[] = [];
 
     for (const [key, value] of Object.entries(shape)) {
@@ -150,7 +154,7 @@ function convertSchema(schema: ZodSchema): any {
   if (schema instanceof ZodArray) {
     return {
       type: 'array',
-      items: convertSchema((schema as any)._def.type),
+      items: convertSchema((schema as ZodArray<ZodSchema>)._def.type),
     };
   }
 
@@ -160,8 +164,8 @@ function convertSchema(schema: ZodSchema): any {
       'checks' in schema._def &&
       Array.isArray(schema._def.checks)
     ) {
-      const checks = schema._def.checks as unknown as ZodCheck[];
-      const result: any = { type: 'string' };
+      const checks = schema._def.checks as ZodCheck[];
+      const result: OpenAPISchema = { type: 'string' };
 
       for (const check of checks) {
         if (check.kind === 'email') {
@@ -191,8 +195,8 @@ function convertSchema(schema: ZodSchema): any {
       'checks' in schema._def &&
       Array.isArray(schema._def.checks)
     ) {
-      const checks = schema._def.checks as unknown as ZodCheck[];
-      const result: any = { type: 'number' };
+      const checks = schema._def.checks as ZodCheck[];
+      const result: OpenAPISchema = { type: 'number' };
 
       for (const check of checks) {
         if (check.kind === 'min') {
@@ -238,7 +242,9 @@ function convertSchema(schema: ZodSchema): any {
   }
 
   if (schema instanceof ZodNullable) {
-    const innerSchema = convertSchema((schema as any)._def.innerType);
+    const innerSchema = convertSchema(
+      (schema as ZodNullable<ZodSchema>)._def.innerType,
+    );
     return {
       ...innerSchema,
       nullable: true,
@@ -246,7 +252,7 @@ function convertSchema(schema: ZodSchema): any {
   }
 
   if (schema instanceof ZodOptional) {
-    return convertSchema((schema as any)._def.innerType);
+    return convertSchema((schema as ZodOptional<ZodSchema>)._def.innerType);
   }
 
   if (schema instanceof ZodUnion) {
