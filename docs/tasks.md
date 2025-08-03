@@ -45,12 +45,12 @@
 - [x] ZodCheck 인터페이스 정의
 - [x] 파일: `/src/common/utils/zod-to-openapi.ts`
 
-#### Task 2.2: 타입 가드 함수 구현
-- [ ] hasZodDef 타입 가드 함수 추가
-- [ ] hasTypeName 타입 가드 함수 추가
-- [ ] isZodEffects 타입 가드 함수 추가
-- [ ] isZodDefault 타입 가드 함수 추가
-- [ ] 파일: `/src/common/utils/zod-to-openapi.ts`
+#### Task 2.2: 타입 가드 함수 구현 ✅
+- [x] hasZodDef 타입 가드 함수 추가
+- [x] hasTypeName 타입 가드 함수 추가
+- [x] isZodEffects 타입 가드 함수 추가
+- [x] isZodDefault 타입 가드 함수 추가
+- [x] 파일: `/src/common/utils/zod-to-openapi.ts`
 
 #### Task 2.3: convertSchema 함수 ZodEffects 처리 개선
 - [ ] ZodEffects 타입 체크를 타입 가드로 변경
