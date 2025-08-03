@@ -46,3 +46,6 @@ lerna-debug.log*
 # Git worktrees (AI 도구 접근 권한 문제로 프로젝트 내부 생성)
 .worktree/
 .worktrees/
+
+# Task management (AI 도구 작업 관리용, 커밋 방지)
+docs/tasks.md
