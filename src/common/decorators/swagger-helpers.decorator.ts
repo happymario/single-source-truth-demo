@@ -167,7 +167,9 @@ export function ApiQueryFromZod(
           continue;
         }
 
-        const fieldOpenApi = zodToOpenAPI(fieldSchema as ZodSchema);
+        const fieldOpenApi: OpenAPISchema = zodToOpenAPI(
+          fieldSchema as ZodSchema,
+        );
 
         // ApiQuery는 스칼라 값만 받으므로 type과 example만 추출
         const options: ApiQueryConfig = {
