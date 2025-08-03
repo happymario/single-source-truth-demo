@@ -250,13 +250,21 @@ function convertSchema(schema: ZodSchema): OpenAPISchema {
   }
 
   if (schema instanceof ZodNullable) {
-    const innerSchema = convertSchema(
-      (schema as ZodNullable<ZodSchema>)._def.innerType,
-    );
-    return {
-      ...innerSchema,
-      nullable: true,
-    };
+    const nullableSchema = schema as ZodNullable<ZodSchema>;
+    if (
+      nullableSchema._def &&
+      'innerType' in nullableSchema._def &&
+      nullableSchema._def.innerType
+    ) {
+      const innerSchema = convertSchema(
+        nullableSchema._def.innerType as unknown as ZodSchema,
+      );
+      return {
+        ...innerSchema,
+        nullable: true,
+      };
+    }
+    return { type: 'object', nullable: true };
   }
 
   if (schema instanceof ZodOptional) {
