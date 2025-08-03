@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { ZodBody, ZodQuery } from '../../common/decorators';
+import { ApiQueryFromZod } from '../../common/decorators/swagger-helpers.decorator';
 import {
   CreateCommentSchema,
   UpdateCommentSchema,
@@ -55,6 +56,7 @@ export class CommentsController {
    * 특정 게시물의 댓글 목록 조회
    */
   @Get('post/:postId')
+  @ApiQueryFromZod(CommentQuerySchema)
   async findByPost(
     @Param('postId') postId: string,
     @ZodQuery(CommentQuerySchema) query: CommentQueryDto,
@@ -66,6 +68,7 @@ export class CommentsController {
    * 특정 게시물의 댓글 트리 구조 조회
    */
   @Get('post/:postId/tree')
+  @ApiQueryFromZod(CommentTreeQuerySchema)
   async findTreeByPost(
     @Param('postId') postId: string,
     @ZodQuery(CommentTreeQuerySchema) query: CommentTreeQueryDto,

@@ -52,26 +52,46 @@ export function ApiQueryFromZod(schema: ZodSchema & { _example?: any }): MethodD
     // ZodObject인 경우 각 필드를 개별 query parameter로 문서화
     if (schema instanceof ZodObject) {
       const shape = schema.shape;
-      const example = (schema as any)._example || {};
+      const example = extractExampleFromSchema(schema);
       
       for (const [key, fieldSchema] of Object.entries(shape)) {
         const fieldOpenApi = zodToOpenAPI(fieldSchema as ZodSchema);
+        
+        // 디버깅용 로그
+        console.log(`Field: ${key}`, {
+          fieldSchema: (fieldSchema as any)._def,
+          fieldOpenApi,
+          example: example ? example[key] : undefined
+        });
+        
+        // ApiQuery는 스칼라 값만 받으므로 type과 example만 추출
         const options: any = {
           name: key,
-          schema: fieldOpenApi,
           required: false, // Query 파라미터는 대부분 선택사항
         };
         
-        // Optional이 아니고 default가 없으면 required
-        if (fieldOpenApi.nullable !== true && fieldOpenApi.default === undefined) {
-          // ZodOptional이나 optional() 체크
-          const fieldDef = (fieldSchema as any)._def;
-          if (fieldDef && fieldDef.typeName !== 'ZodOptional') {
-            options.required = true;
-          }
+        // 타입 설정 - ApiQuery가 기대하는 형식으로
+        if (fieldOpenApi.type === 'number') {
+          options.type = Number;
+        } else if (fieldOpenApi.type === 'boolean') {
+          options.type = Boolean;
+        } else if (fieldOpenApi.type === 'string') {
+          options.type = String;
         }
         
-        if (example[key] !== undefined) {
+        // enum 처리
+        if (fieldOpenApi.enum) {
+          options.enum = fieldOpenApi.enum;
+        }
+        
+        // Query 파라미터는 기본적으로 모두 optional로 설정
+        // 왜냐하면 일반적으로 GET 요청의 query parameter는 필수가 아니기 때문
+        options.required = false;
+        
+        // 특별히 required가 필요한 경우만 true로 설정하는 로직을 추가할 수 있음
+        // 현재는 모든 query parameter를 optional로 처리
+        
+        if (example && example[key] !== undefined) {
           options.example = example[key];
         }
         
@@ -97,6 +117,44 @@ export function ApiQueryFromZod(schema: ZodSchema & { _example?: any }): MethodD
       ApiQuery(options)(target, propertyKey, descriptor);
     }
   };
+}
+
+/**
+ * 스키마에서 example 값을 추출하는 헬퍼 함수
+ * 중첩된 스키마(extend, merge)에서도 example을 찾음
+ */
+function extractExampleFromSchema(schema: any): any {
+  // 직접 _example이 있는 경우
+  if (schema._example) {
+    return schema._example;
+  }
+  
+  // ZodObject의 경우 shape에서 각 필드의 example 수집
+  if (schema instanceof ZodObject) {
+    const shape = schema.shape;
+    const result: any = {};
+    
+    for (const [key, fieldSchema] of Object.entries(shape)) {
+      const fieldExample = extractExampleFromSchema(fieldSchema);
+      if (fieldExample !== undefined) {
+        result[key] = fieldExample;
+      }
+    }
+    
+    return Object.keys(result).length > 0 ? result : undefined;
+  }
+  
+  // ZodDefault의 경우 기본값 사용
+  if ((schema as any)._def?.typeName === 'ZodDefault') {
+    return (schema as any)._def.defaultValue();
+  }
+  
+  // ZodEffects (withExample로 감싸진 경우)
+  if ((schema as any)._def?.typeName === 'ZodEffects') {
+    return extractExampleFromSchema((schema as any)._def.schema);
+  }
+  
+  return undefined;
 }
 
 /**

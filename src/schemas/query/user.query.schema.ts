@@ -1,12 +1,22 @@
 import { z } from 'zod';
-import { BaseQuerySchema } from '../shared/common.schema';
 import { withExample } from '../../common/utils/zod-with-example';
 
 /**
  * 사용자 목록 조회 쿼리 스키마
  */
 export const UserQuerySchema = withExample(
-  BaseQuerySchema.extend({
+  z.object({
+    // 페이지네이션
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(10),
+    
+    // 정렬
+    sortBy: z
+      .enum(['name', 'email', 'createdAt', 'updatedAt', 'lastLoginAt'])
+      .default('createdAt'),
+    sortOrder: z.enum(['asc', 'desc']).default('desc'),
+    
+    // 검색 및 필터링
     /**
      * 이름으로 검색
      */
@@ -26,13 +36,6 @@ export const UserQuerySchema = withExample(
      * 활성화 상태로 필터링
      */
     isActive: z.coerce.boolean().optional(),
-
-    /**
-     * 정렬 필드 (기본값: createdAt)
-     */
-    sortBy: z
-      .enum(['name', 'email', 'createdAt', 'updatedAt', 'lastLoginAt'])
-      .default('createdAt'),
   }),
   {
     page: 1,

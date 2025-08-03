@@ -31,6 +31,31 @@ export function zodToOpenAPI(schema: ZodSchema & { _example?: any }): any {
  * 실제 스키마 변환 로직
  */
 function convertSchema(schema: ZodSchema): any {
+  // ZodEffects (z.coerce 등) 처리
+  if ((schema as any)._def?.typeName === 'ZodEffects') {
+    const innerSchema = (schema as any)._def.schema;
+    const result = convertSchema(innerSchema);
+    
+    // coerce의 경우 타입 정보 유지
+    if ((schema as any)._def.effect?.type === 'preprocess') {
+      return result;
+    }
+    
+    return result;
+  }
+
+  // ZodDefault 처리
+  if ((schema as any)._def?.typeName === 'ZodDefault') {
+    const innerSchema = (schema as any)._def.innerType;
+    const result = convertSchema(innerSchema);
+    const defaultValue = (schema as any)._def.defaultValue();
+    
+    return {
+      ...result,
+      default: defaultValue,
+    };
+  }
+
   if (schema instanceof ZodObject) {
     const shape = schema.shape;
     const properties: any = {};

@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { ZodQuery, ZodParam, ZodBody } from '../../common/decorators';
+import { ApiQueryFromZod, ApiParamFromZod } from '../../common/decorators/swagger-helpers.decorator';
 import {
   CreatePostSchema,
   UpdatePostSchema,
@@ -70,6 +71,7 @@ export class PostsController {
    * 게시물 목록 조회
    */
   @Get()
+  @ApiQueryFromZod(PostListQuerySchema)
   async findAll(@ZodQuery(PostListQuerySchema) query: PostListQueryDto) {
     return this.postsService.findAll(query);
   }
@@ -78,6 +80,7 @@ export class PostsController {
    * 게시물 통계 조회
    */
   @Get('stats')
+  @ApiQueryFromZod(PostStatsQuerySchema)
   async getStats(@ZodQuery(PostStatsQuerySchema) query: PostStatsQueryDto) {
     return this.postsService.getStats(query);
   }
@@ -113,6 +116,8 @@ export class PostsController {
    * 작성자별 게시물 조회
    */
   @Get('author/:authorId')
+  @ApiParamFromZod('authorId', PostIdParamSchema)
+  @ApiQueryFromZod(PostListQuerySchema)
   async findByAuthor(
     @ZodParam(PostIdParamSchema) params: PostIdParamDto,
     @ZodQuery(PostListQuerySchema) query: PostListQueryDto,
