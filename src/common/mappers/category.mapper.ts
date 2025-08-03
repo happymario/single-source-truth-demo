@@ -26,11 +26,11 @@ export class CategoryMapper {
       createdAt:
         json.createdAt instanceof Date
           ? json.createdAt
-          : new Date(json.createdAt),
+          : new Date(String(json.createdAt)),
       updatedAt:
         json.updatedAt instanceof Date
           ? json.updatedAt
-          : new Date(json.updatedAt),
+          : new Date(String(json.updatedAt)),
     });
   }
 

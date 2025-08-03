@@ -1,34 +1,49 @@
 import { z } from 'zod';
-import { BaseQuerySchema } from '../shared/common.schema';
+import { withExample } from '../../common/utils/zod-with-example';
 
 /**
  * 사용자 목록 조회 쿼리 스키마
  */
-export const UserQuerySchema = BaseQuerySchema.extend({
-  /**
-   * 이름으로 검색
-   */
-  name: z.string().optional(),
+export const UserQuerySchema = withExample(
+  z.object({
+    // 페이지네이션
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(10),
 
-  /**
-   * 이메일로 검색
-   */
-  email: z.string().optional(),
+    // 정렬
+    sortBy: z
+      .enum(['name', 'email', 'createdAt', 'updatedAt', 'lastLoginAt'])
+      .default('createdAt'),
+    sortOrder: z.enum(['asc', 'desc']).default('desc'),
 
-  /**
-   * 권한으로 필터링
-   */
-  role: z.enum(['user', 'admin']).optional(),
+    // 검색 및 필터링
+    /**
+     * 이름으로 검색
+     */
+    name: z.string().optional(),
 
-  /**
-   * 활성화 상태로 필터링
-   */
-  isActive: z.coerce.boolean().optional(),
+    /**
+     * 이메일로 검색
+     */
+    email: z.string().optional(),
 
-  /**
-   * 정렬 필드 (기본값: createdAt)
-   */
-  sortBy: z
-    .enum(['name', 'email', 'createdAt', 'updatedAt', 'lastLoginAt'])
-    .default('createdAt'),
-});
+    /**
+     * 권한으로 필터링
+     */
+    role: z.enum(['user', 'admin']).optional(),
+
+    /**
+     * 활성화 상태로 필터링
+     */
+    isActive: z.coerce.boolean().optional(),
+  }),
+  {
+    page: 1,
+    limit: 10,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+    name: '홍',
+    role: 'user',
+    isActive: true,
+  },
+);

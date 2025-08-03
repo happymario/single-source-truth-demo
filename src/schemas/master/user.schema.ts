@@ -75,8 +75,3 @@ export const UserMasterSchema = z
     lastLoginAt: z.date().optional(),
   })
   .merge(TimestampsSchema);
-
-/**
- * User 엔티티 타입 (타입 추론용)
- */
-export type UserMaster = z.infer<typeof UserMasterSchema>;

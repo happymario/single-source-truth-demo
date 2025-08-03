@@ -1,11 +1,15 @@
 import { z } from 'zod';
+import { withExample } from '../../common/utils/zod-with-example';
 
 /**
  * MongoDB ObjectId 패턴 검증
  */
-export const ObjectIdSchema = z.string().regex(/^[0-9a-fA-F]{24}$/, {
-  message: 'Invalid MongoDB ObjectId format',
-});
+export const ObjectIdSchema = withExample(
+  z.string().regex(/^[0-9a-fA-F]{24}$/, {
+    message: 'Invalid MongoDB ObjectId format',
+  }),
+  '507f1f77bcf86cd799439011',
+);
 
 /**
  * 타임스탬프 스키마
@@ -18,10 +22,16 @@ export const TimestampsSchema = z.object({
 /**
  * 페이지네이션 스키마
  */
-export const PaginationSchema = z.object({
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(10),
-});
+export const PaginationSchema = withExample(
+  z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(10),
+  }),
+  {
+    page: 1,
+    limit: 10,
+  },
+);
 
 /**
  * 정렬 스키마

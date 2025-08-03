@@ -54,7 +54,7 @@ describe('CategoriesService', () => {
       ...dto,
       save: jest.fn().mockResolvedValue(mockCategory),
     }));
-    
+
     // Add static methods to the constructor function
     mockModel.findOne = jest.fn();
     mockModel.findById = jest.fn();
@@ -120,7 +120,7 @@ describe('CategoriesService', () => {
         ...mockCreateCategoryDto,
         parentId: '507f1f77bcf86cd799439012',
       };
-      
+
       model.findOne.mockResolvedValue(null); // 슬러그 중복 없음
       model.findById.mockResolvedValue(null); // 부모 카테고리 없음
 
@@ -194,11 +194,11 @@ describe('CategoriesService', () => {
       model.findById.mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockCategory),
       } as any);
-      
+
       model.find.mockReturnValue({
         exec: jest.fn().mockResolvedValue([]), // 자식 카테고리 없음
       } as any);
-      
+
       model.findByIdAndDelete.mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockCategory),
       } as any);
@@ -208,8 +208,12 @@ describe('CategoriesService', () => {
 
       // Then
       expect(model.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
-      expect(model.find).toHaveBeenCalledWith({ parentId: '507f1f77bcf86cd799439011' });
-      expect(model.findByIdAndDelete).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(model.find).toHaveBeenCalledWith({
+        parentId: '507f1f77bcf86cd799439011',
+      });
+      expect(model.findByIdAndDelete).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
     });
 
     it('자식 카테고리가 있으면 ConflictException을 던져야 함', async () => {
@@ -217,7 +221,7 @@ describe('CategoriesService', () => {
       model.findById.mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockCategory),
       } as any);
-      
+
       model.find.mockReturnValue({
         exec: jest.fn().mockResolvedValue([mockCategory]), // 자식 카테고리 존재
       } as any);
@@ -236,7 +240,7 @@ describe('CategoriesService', () => {
         { ...mockCategory, id: '1', parentId: undefined, name: 'Root' },
         { ...mockCategory, id: '2', parentId: '1', name: 'Child' },
       ];
-      
+
       model.find.mockReturnValue({
         sort: jest.fn().mockReturnValue({
           exec: jest.fn().mockResolvedValue(categories),

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 /**
  * 데이터베이스 모듈
@@ -8,10 +9,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 @Module({
   imports: [
     MongooseModule.forRootAsync({
-      useFactory: () => ({
-        uri:
-          process.env.MONGODB_URI ||
-          'mongodb://localhost:27017/zod-architecture',
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGODB_URI'),
         // 전역 Mongoose 설정
         connectionFactory: (
           connection: typeof import('mongoose').connection,
@@ -23,16 +23,21 @@ import { MongooseModule } from '@nestjs/mongoose';
           );
 
           // 디버그 모드 (개발 환경에서만)
-          if (process.env.NODE_ENV === 'development') {
+          if (configService.get<string>('NODE_ENV') === 'development') {
             (connection as { set(key: string, value: unknown): void }).set(
               'debug',
               true,
             );
           }
 
+          console.log(
+            `MongoDB connected to: ${configService.get<string>('MONGODB_URI')}`,
+          );
+
           return connection;
         },
       }),
+      inject: [ConfigService],
     }),
   ],
 })
