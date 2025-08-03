@@ -39,11 +39,11 @@
 ### Story 2: zod-to-openapi.ts 타입 안전성 개선
 **목표**: zod-to-openapi.ts 파일의 모든 린트 에러 해결
 
-#### Task 2.1: Zod 내부 타입 인터페이스 정의
-- [ ] ZodDef 인터페이스 정의
-- [ ] ZodSchemaWithDef 인터페이스 정의
-- [ ] ZodCheck 인터페이스 정의
-- [ ] 파일: `/src/common/utils/zod-to-openapi.ts`
+#### Task 2.1: Zod 내부 타입 인터페이스 정의 ✅
+- [x] ZodDef 인터페이스 정의
+- [x] ZodSchemaWithDef 인터페이스 정의
+- [x] ZodCheck 인터페이스 정의
+- [x] 파일: `/src/common/utils/zod-to-openapi.ts`
 
 #### Task 2.2: 타입 가드 함수 구현
 - [ ] hasZodDef 타입 가드 함수 추가
