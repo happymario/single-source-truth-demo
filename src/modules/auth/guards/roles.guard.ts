@@ -27,7 +27,11 @@ export const Roles = (...roles: Role[]) => {
     propertyName?: string,
     descriptor?: PropertyDescriptor,
   ) => {
-    Reflect.defineMetadata(ROLES_KEY, roles, descriptor?.value ?? target);
+    Reflect.defineMetadata(
+      ROLES_KEY,
+      roles,
+      (descriptor?.value as object) ?? target,
+    );
   };
 };
 
