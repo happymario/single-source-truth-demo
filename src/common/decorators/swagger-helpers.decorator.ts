@@ -67,6 +67,18 @@ function hasZodDef(schema: unknown): schema is { _def: any } {
 }
 
 /**
+ * Zod 스키마가 _example 속성을 가지고 있는지 확인하는 타입 가드
+ */
+function hasExample(schema: unknown): schema is { _example: unknown } {
+  return (
+    typeof schema === 'object' &&
+    schema !== null &&
+    '_example' in schema &&
+    (schema as { _example?: unknown })._example !== undefined
+  );
+}
+
+/**
  * OpenAPI 스키마가 유효한 타입인지 확인하는 검증 함수
  */
 function isValidOpenAPIType(schema: unknown): schema is OpenAPISchema {
@@ -113,7 +125,7 @@ export function ApiParamFromZod(
     required: true,
   };
 
-  if ('_example' in schema && schema._example !== undefined) {
+  if (hasExample(schema)) {
     options.example = schema._example;
   }
 
@@ -225,14 +237,8 @@ export function ApiQueryFromZod(
         required: false,
       };
 
-      if (
-        hasZodDef(schema) &&
-        '_example' in schema &&
-        schema._example !== undefined
-      ) {
-        queryOptions.example = (
-          schema as ZodSchema & { _example: unknown }
-        )._example;
+      if (hasExample(schema)) {
+        queryOptions.example = schema._example;
       }
 
       ApiQuery(queryOptions)(target, propertyKey, descriptor);
@@ -246,7 +252,7 @@ export function ApiQueryFromZod(
  */
 function extractExampleFromSchema(schema: ZodSchema): unknown {
   // 직접 _example이 있는 경우
-  if ('_example' in schema && schema._example) {
+  if (hasExample(schema)) {
     return schema._example;
   }
 
