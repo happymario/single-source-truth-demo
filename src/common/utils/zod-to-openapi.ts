@@ -29,7 +29,7 @@ interface ZodSchemaWithDef {
 
 interface ZodCheck {
   kind: string;
-  value?: unknown;
+  value?: number | string | boolean;
   message?: string;
   regex?: RegExp;
   [key: string]: unknown;
@@ -175,9 +175,9 @@ function convertSchema(schema: ZodSchema): OpenAPISchema {
         } else if (check.kind === 'uuid') {
           result.format = 'uuid';
         } else if (check.kind === 'min') {
-          result.minLength = check.value;
+          result.minLength = check.value as number;
         } else if (check.kind === 'max') {
-          result.maxLength = check.value;
+          result.maxLength = check.value as number;
         } else if (check.kind === 'regex' && check.regex instanceof RegExp) {
           result.pattern = check.regex.source;
         }
@@ -200,9 +200,9 @@ function convertSchema(schema: ZodSchema): OpenAPISchema {
 
       for (const check of checks) {
         if (check.kind === 'min') {
-          result.minimum = check.value;
+          result.minimum = check.value as number;
         } else if (check.kind === 'max') {
-          result.maximum = check.value;
+          result.maximum = check.value as number;
         } else if (check.kind === 'int') {
           result.type = 'integer';
         }
