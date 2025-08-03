@@ -250,13 +250,24 @@ export function ApiQueryFromZod(
 }
 
 /**
+ * Example 값의 타입 정의
+ */
+type ExampleValue =
+  | string
+  | number
+  | boolean
+  | null
+  | Record<string, unknown>
+  | unknown[];
+
+/**
  * 스키마에서 example 값을 추출하는 헬퍼 함수
  * 중첩된 스키마(extend, merge)에서도 example을 찾음
  */
-function extractExampleFromSchema(schema: ZodSchema): unknown {
+function extractExampleFromSchema(schema: ZodSchema): ExampleValue | undefined {
   // 직접 _example이 있는 경우
   if (hasExample(schema)) {
-    return schema._example;
+    return schema._example as ExampleValue;
   }
 
   // ZodObject의 경우 shape에서 각 필드의 example 수집
@@ -287,7 +298,7 @@ function extractExampleFromSchema(schema: ZodSchema): unknown {
     'defaultValue' in schema._def &&
     typeof schema._def.defaultValue === 'function'
   ) {
-    return schema._def.defaultValue();
+    return schema._def.defaultValue() as ExampleValue;
   }
 
   // ZodEffects (withExample로 감싸진 경우)
