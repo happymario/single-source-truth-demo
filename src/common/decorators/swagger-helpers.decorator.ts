@@ -103,7 +103,7 @@ function isValidOpenAPIType(schema: unknown): schema is OpenAPISchema {
  */
 export function ApiParamFromZod(
   name: string,
-  schema: ZodSchema & { _example?: any },
+  schema: ZodSchema & { _example?: unknown },
 ): MethodDecorator {
   const openApiSchema = zodToOpenAPI(schema);
 
