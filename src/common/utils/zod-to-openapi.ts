@@ -14,6 +14,24 @@ import {
 } from 'zod';
 
 /**
+ * Zod 내부 타입 정의
+ */
+interface ZodDef {
+  typeName: string;
+  [key: string]: unknown;
+}
+
+interface ZodSchemaWithDef extends ZodSchema {
+  _def: ZodDef;
+}
+
+interface ZodCheck {
+  kind: string;
+  value?: unknown;
+  [key: string]: unknown;
+}
+
+/**
  * Zod 스키마를 OpenAPI 3.0 스키마로 변환합니다.
  */
 export function zodToOpenAPI(schema: ZodSchema & { _example?: any }): any {
