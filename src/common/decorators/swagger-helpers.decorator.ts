@@ -3,6 +3,52 @@ import { ZodSchema, ZodObject } from 'zod';
 import { zodToOpenAPI } from '../utils/zod-to-openapi';
 
 /**
+ * OpenAPI 스키마 타입 정의
+ */
+interface OpenAPISchema {
+  type?: 'string' | 'number' | 'boolean' | 'object' | 'array' | 'integer';
+  enum?: string[];
+  description?: string;
+  example?: unknown;
+  format?: string;
+  minimum?: number;
+  maximum?: number;
+  pattern?: string;
+  minLength?: number;
+  maxLength?: number;
+  items?: OpenAPISchema;
+  properties?: Record<string, OpenAPISchema>;
+  required?: string[];
+  nullable?: boolean;
+  oneOf?: OpenAPISchema[];
+  const?: unknown;
+  default?: unknown;
+}
+
+/**
+ * API 파라미터 설정 타입 정의
+ */
+interface ApiParamConfig {
+  name: string;
+  schema: OpenAPISchema;
+  required: boolean;
+  example?: unknown;
+  description?: string;
+}
+
+/**
+ * API 쿼리 설정 타입 정의
+ */
+interface ApiQueryConfig {
+  name: string;
+  type?: NumberConstructor | StringConstructor | BooleanConstructor;
+  enum?: string[];
+  example?: unknown;
+  description?: string;
+  required: boolean;
+}
+
+/**
  * ZodParam과 함께 사용하여 Swagger 문서화를 추가하는 헬퍼 함수
  *
  * @example
