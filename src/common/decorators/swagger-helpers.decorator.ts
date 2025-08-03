@@ -67,6 +67,20 @@ function hasZodDef(schema: unknown): schema is { _def: any } {
 }
 
 /**
+ * OpenAPI 스키마가 유효한 타입인지 확인하는 검증 함수
+ */
+function isValidOpenAPIType(schema: unknown): schema is OpenAPISchema {
+  if (typeof schema !== 'object' || schema === null) {
+    return false;
+  }
+  
+  const openApiSchema = schema as OpenAPISchema;
+  const validTypes = ['string', 'number', 'boolean', 'object', 'array', 'integer'];
+  
+  return openApiSchema.type === undefined || validTypes.includes(openApiSchema.type);
+}
+
+/**
  * ZodParam과 함께 사용하여 Swagger 문서화를 추가하는 헬퍼 함수
  *
  * @example
