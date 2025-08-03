@@ -268,7 +268,17 @@ function convertSchema(schema: ZodSchema): OpenAPISchema {
   }
 
   if (schema instanceof ZodOptional) {
-    return convertSchema((schema as ZodOptional<ZodSchema>)._def.innerType);
+    const optionalSchema = schema as ZodOptional<ZodSchema>;
+    if (
+      optionalSchema._def &&
+      'innerType' in optionalSchema._def &&
+      optionalSchema._def.innerType
+    ) {
+      return convertSchema(
+        optionalSchema._def.innerType as unknown as ZodSchema,
+      );
+    }
+    return { type: 'object' };
   }
 
   if (schema instanceof ZodUnion) {
