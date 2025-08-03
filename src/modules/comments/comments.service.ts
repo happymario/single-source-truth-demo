@@ -558,7 +558,7 @@ export class CommentsService {
     // 댓글을 ID로 매핑
     const commentMap = new Map<string, CommentDocument>();
     comments.forEach((comment) => {
-      commentMap.set(comment.id, comment);
+      commentMap.set(comment.id as string, comment);
     });
 
     // 트리 구조 생성
@@ -569,7 +569,7 @@ export class CommentsService {
     const rootComments = comments.filter((comment) => !comment.parentId);
 
     rootComments.forEach((rootComment) => {
-      if (!processed.has(rootComment.id)) {
+      if (!processed.has(rootComment.id as string)) {
         const treeNode = this.buildCommentTreeNode(
           rootComment,
           commentMap,
@@ -594,11 +594,11 @@ export class CommentsService {
     authorMap?: Map<string, UserDocument>,
     processed: Set<string> = new Set(),
   ): CommentTreeResponse | null {
-    if (processed.has(comment.id)) {
+    if (processed.has(comment.id as string)) {
       return null;
     }
 
-    processed.add(comment.id);
+    processed.add(comment.id as string);
 
     // 기본 댓글 응답 생성
     let commentResponse: CommentResponse | CommentWithAuthorResponse;
