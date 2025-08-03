@@ -25,13 +25,13 @@ export abstract class BaseModel {
    * 생성 일시
    */
   @Prop({ default: Date.now })
-  createdAt: Date;
+  createdAt!: Date;
 
   /**
    * 수정 일시
    */
   @Prop({ default: Date.now })
-  updatedAt: Date;
+  updatedAt!: Date;
 }
 
 /**
