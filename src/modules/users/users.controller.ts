@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ZodBody, ZodQuery } from '../../common/decorators';
+import { ApiParamFromZod, ApiQueryFromZod } from '../../common/decorators/swagger-helpers.decorator';
 import { ObjectIdSchema } from '../../schemas/shared/common.schema';
 import {
   CreateUserSchema,
@@ -53,6 +54,7 @@ export class UsersController {
    * GET /users?page=1&limit=10&name=john&role=user
    */
   @Get()
+  @ApiQueryFromZod(UserQuerySchema)
   async findAll(
     @ZodQuery(UserQuerySchema) query: UserQueryDto,
   ): Promise<UserListResponse> {
@@ -64,6 +66,7 @@ export class UsersController {
    * GET /users/:id
    */
   @Get(':id')
+  @ApiParamFromZod('id', ObjectIdSchema)
   async findOne(@Param('id') id: string): Promise<UserResponse> {
     // ObjectId 형식 검증
     ObjectIdSchema.parse(id);
@@ -75,6 +78,7 @@ export class UsersController {
    * PATCH /users/:id
    */
   @Patch(':id')
+  @ApiParamFromZod('id', ObjectIdSchema)
   @ZodBody(UpdateUserSchema)
   async update(
     @Param('id') id: string,
@@ -90,6 +94,7 @@ export class UsersController {
    * PATCH /users/:id/password
    */
   @Patch(':id/password')
+  @ApiParamFromZod('id', ObjectIdSchema)
   @ZodBody(ChangePasswordSchema)
   @HttpCode(HttpStatus.NO_CONTENT)
   async changePassword(

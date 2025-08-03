@@ -1,11 +1,13 @@
 import { z } from 'zod';
 import { ObjectIdSchema } from '../shared/common.schema';
 import { SlugSchema } from '../shared/validation.schema';
+import { withExample } from '../../common/utils/zod-with-example';
 
 /**
  * 게시물 목록 조회 쿼리 스키마
  */
-export const PostListQuerySchema = z.object({
+export const PostListQuerySchema = withExample(
+  z.object({
   /**
    * 페이지 번호 (1부터 시작)
    */
@@ -79,7 +81,18 @@ export const PostListQuerySchema = z.object({
    * 날짜 범위 필터 - 종료일
    */
   endDate: z.coerce.date().optional(),
-});
+}),
+  {
+    page: 1,
+    limit: 10,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+    search: 'NestJS',
+    status: 'published',
+    isPublic: true,
+    tag: 'nestjs',
+  }
+);
 
 /**
  * 게시물 단일 조회 쿼리 스키마 (ID 또는 슬러그)
