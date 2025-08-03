@@ -287,7 +287,7 @@ function convertSchema(schema: ZodSchema): OpenAPISchema {
       'options' in schema._def &&
       Array.isArray(schema._def.options)
     ) {
-      const options = schema._def.options as ZodSchema[];
+      const options = schema._def.options as unknown as ZodSchema[];
       return {
         oneOf: options.map((option: ZodSchema) => convertSchema(option)),
       };
