@@ -67,7 +67,7 @@ describe.skip('CommentsService - 계층 구조 통합 테스트', () => {
       // 사용자와 게시물 생성
       const userModel = connection.model('UserModel');
       const postModel = connection.model('PostModel');
-      
+
       const user = await userModel.create(testUser);
       const post = await postModel.create({
         ...testPost,
@@ -96,7 +96,7 @@ describe.skip('CommentsService - 계층 구조 통합 테스트', () => {
       const userModel = connection.model('UserModel');
       const postModel = connection.model('PostModel');
       const commentModel = connection.model('CommentModel');
-      
+
       const user = await userModel.create(testUser);
       const post = await postModel.create({
         ...testPost,
@@ -139,7 +139,7 @@ describe.skip('CommentsService - 계층 구조 통합 테스트', () => {
       const userModel = connection.model('UserModel');
       const postModel = connection.model('PostModel');
       const commentModel = connection.model('CommentModel');
-      
+
       const user = await userModel.create(testUser);
       const post = await postModel.create({
         ...testPost,
@@ -164,9 +164,9 @@ describe.skip('CommentsService - 계층 구조 통합 테스트', () => {
         parentId: level5Comment.id,
       };
 
-      await expect(
-        service.create(createDeepReplyDto, user.id)
-      ).rejects.toThrow('Maximum comment depth exceeded');
+      await expect(service.create(createDeepReplyDto, user.id)).rejects.toThrow(
+        'Maximum comment depth exceeded',
+      );
     });
   });
 
@@ -176,7 +176,7 @@ describe.skip('CommentsService - 계층 구조 통합 테스트', () => {
       const userModel = connection.model('UserModel');
       const postModel = connection.model('PostModel');
       const commentModel = connection.model('CommentModel');
-      
+
       const user = await userModel.create(testUser);
       const post = await postModel.create({
         ...testPost,
@@ -233,7 +233,7 @@ describe.skip('CommentsService - 계층 구조 통합 테스트', () => {
       const userModel = connection.model('UserModel');
       const postModel = connection.model('PostModel');
       const commentModel = connection.model('CommentModel');
-      
+
       const user = await userModel.create(testUser);
       const post = await postModel.create({
         ...testPost,
@@ -272,14 +272,14 @@ describe.skip('CommentsService - 계층 구조 통합 테스트', () => {
       const result = await service.findThreadByPost(post.id, {});
 
       expect(result).toHaveLength(3);
-      
+
       // 깊이 순으로 정렬되어야 함
       expect(result[0].depth).toBe(0);
       expect(result[0].content).toBe('루트 댓글 - 깊이 0');
-      
+
       expect(result[1].depth).toBe(1);
       expect(result[1].content).toBe('답글 - 깊이 1');
-      
+
       expect(result[2].depth).toBe(2);
       expect(result[2].content).toBe('대답글 - 깊이 2');
     });
@@ -289,7 +289,7 @@ describe.skip('CommentsService - 계층 구조 통합 테스트', () => {
       const userModel = connection.model('UserModel');
       const postModel = connection.model('PostModel');
       const commentModel = connection.model('CommentModel');
-      
+
       const user = await userModel.create(testUser);
       const post = await postModel.create({
         ...testPost,
@@ -326,14 +326,14 @@ describe.skip('CommentsService - 계층 구조 통합 테스트', () => {
     it('댓글 경로를 올바르게 생성해야 한다', () => {
       const parentPath = ['level0', 'level1'];
       const parentId = 'level2';
-      
+
       const mockParent = {
         path: parentPath,
         id: parentId,
       } as any;
 
       const result = CommentMapper.buildCommentPath(mockParent);
-      
+
       expect(result).toEqual(['level0', 'level1', 'level2']);
     });
 
@@ -343,7 +343,7 @@ describe.skip('CommentsService - 계층 구조 통합 테스트', () => {
       } as any;
 
       const result = CommentMapper.calculateDepth(mockParent);
-      
+
       expect(result).toBe(3);
     });
 
@@ -353,7 +353,7 @@ describe.skip('CommentsService - 계층 구조 통합 테스트', () => {
       } as any;
 
       const result = CommentMapper.calculateDepth(mockParent);
-      
+
       expect(result).toBe(5); // 최대 깊이 5 유지
     });
 
@@ -370,7 +370,7 @@ describe.skip('CommentsService - 계층 구조 통합 테스트', () => {
         authorId,
         1000 * 60 * 60, // 1시간 제한
       );
-      
+
       expect(result).toBe(true);
     });
 
@@ -387,7 +387,7 @@ describe.skip('CommentsService - 계층 구조 통합 테스트', () => {
         authorId,
         1000 * 60 * 60 * 24, // 24시간 제한
       );
-      
+
       expect(result).toBe(false);
     });
   });

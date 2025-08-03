@@ -61,7 +61,7 @@ describe('CommentMasterSchema', () => {
         updatedAt: new Date(),
       };
       const result = CommentMasterSchema.parse(dataWithDefaults);
-      
+
       expect(result.depth).toBe(0);
       expect(result.childIds).toEqual([]);
       expect(result.path).toEqual([]);

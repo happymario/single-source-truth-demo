@@ -51,7 +51,7 @@ describe('PostMasterSchema', () => {
         updatedAt: new Date(),
       };
       const result = PostMasterSchema.parse(dataWithDefaults);
-      
+
       expect(result.categoryIds).toEqual([]);
       expect(result.tags).toEqual([]);
       expect(result.status).toBe('draft');
@@ -108,7 +108,10 @@ describe('PostMasterSchema', () => {
     });
 
     it('should reject invalid categoryId format in array', () => {
-      const invalidData = { ...validPostData, categoryIds: ['invalid-category-id'] };
+      const invalidData = {
+        ...validPostData,
+        categoryIds: ['invalid-category-id'],
+      };
       const result = PostMasterSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
     });
@@ -150,7 +153,10 @@ describe('PostMasterSchema', () => {
     });
 
     it('should reject meta description too long', () => {
-      const invalidData = { ...validPostData, metaDescription: 'a'.repeat(161) };
+      const invalidData = {
+        ...validPostData,
+        metaDescription: 'a'.repeat(161),
+      };
       const result = PostMasterSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
     });
@@ -158,22 +164,28 @@ describe('PostMasterSchema', () => {
 
   describe('Edge cases', () => {
     it('should accept valid thumbnail URL', () => {
-      const validData = { ...validPostData, thumbnail: 'https://example.com/image.jpg' };
+      const validData = {
+        ...validPostData,
+        thumbnail: 'https://example.com/image.jpg',
+      };
       const result = PostMasterSchema.safeParse(validData);
       expect(result.success).toBe(true);
     });
 
     it('should accept valid excerpt', () => {
-      const validData = { ...validPostData, excerpt: 'This is a valid excerpt.' };
+      const validData = {
+        ...validPostData,
+        excerpt: 'This is a valid excerpt.',
+      };
       const result = PostMasterSchema.safeParse(validData);
       expect(result.success).toBe(true);
     });
 
     it('should accept valid meta fields', () => {
-      const validData = { 
-        ...validPostData, 
+      const validData = {
+        ...validPostData,
         metaTitle: 'SEO Title',
-        metaDescription: 'SEO description for the post'
+        metaDescription: 'SEO description for the post',
       };
       const result = PostMasterSchema.safeParse(validData);
       expect(result.success).toBe(true);

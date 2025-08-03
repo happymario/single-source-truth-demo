@@ -45,7 +45,10 @@ describe('CategoriesController (e2e)', () => {
       expect(response.body).toHaveProperty('id');
       expect(response.body).toHaveProperty('name', testCategory.name);
       expect(response.body).toHaveProperty('slug', testCategory.slug);
-      expect(response.body).toHaveProperty('description', testCategory.description);
+      expect(response.body).toHaveProperty(
+        'description',
+        testCategory.description,
+      );
       expect(response.body).toHaveProperty('color', testCategory.color);
       expect(response.body).toHaveProperty('icon', testCategory.icon);
       expect(response.body).toHaveProperty('order', testCategory.order);
@@ -118,7 +121,10 @@ describe('CategoriesController (e2e)', () => {
         .send(childCategory)
         .expect(201);
 
-      expect(childResponse.body).toHaveProperty('parentId', parentResponse.body.id);
+      expect(childResponse.body).toHaveProperty(
+        'parentId',
+        parentResponse.body.id,
+      );
     });
   });
 

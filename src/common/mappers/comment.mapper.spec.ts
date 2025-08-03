@@ -36,7 +36,7 @@ describe('CommentMapper - 계층 구조 테스트', () => {
       metadata: { editHistory: [] },
       createdAt,
       updatedAt: createdAt,
-      toJSON: function() {
+      toJSON: function () {
         return {
           id: this.id,
           content: this.content,
@@ -71,7 +71,7 @@ describe('CommentMapper - 계층 구조 테스트', () => {
       avatar: `https://example.com/avatar/${id}.jpg`,
       createdAt: new Date(),
       updatedAt: new Date(),
-      toJSON: function() {
+      toJSON: function () {
         return {
           id: this.id,
           name: this.name,
@@ -94,7 +94,7 @@ describe('CommentMapper - 계층 구조 테스트', () => {
     it('부모 댓글이 있으면 경로에 부모 ID를 추가해야 한다', () => {
       const parentId = new Types.ObjectId().toHexString();
       const grandParentId = new Types.ObjectId().toHexString();
-      
+
       const parentComment = createMockCommentDocument(
         parentId,
         '부모 댓글',
@@ -106,7 +106,7 @@ describe('CommentMapper - 계층 구조 테스트', () => {
       );
 
       const result = CommentMapper.buildCommentPath(parentComment);
-      
+
       expect(result).toEqual([grandParentId, parentId]);
     });
 
@@ -129,7 +129,7 @@ describe('CommentMapper - 계층 구조 테스트', () => {
       );
 
       const result = CommentMapper.buildCommentPath(level3Comment);
-      
+
       expect(result).toEqual([ids[0], ids[1], ids[2], ids[3]]);
     });
   });
@@ -248,20 +248,25 @@ describe('CommentMapper - 계층 구조 테스트', () => {
         [],
       );
 
-      const comments = [rootComment, child1Comment, child2Comment, grandChild1Comment];
+      const comments = [
+        rootComment,
+        child1Comment,
+        child2Comment,
+        grandChild1Comment,
+      ];
       const result = CommentMapper.buildCommentTree(comments);
 
       expect(result).toHaveLength(1);
-      
+
       const tree = result[0];
       expect(tree.id).toBe(rootId);
       expect(tree.children).toHaveLength(2);
-      
+
       const firstChild = tree.children[0];
       expect(firstChild.id).toBe(child1Id);
       expect(firstChild.children).toHaveLength(1);
       expect(firstChild.children[0].id).toBe(grandChild1Id);
-      
+
       const secondChild = tree.children[1];
       expect(secondChild.id).toBe(child2Id);
       expect(secondChild.children).toHaveLength(0);
@@ -309,7 +314,10 @@ describe('CommentMapper - 계층 구조 테스트', () => {
         postId,
       );
 
-      const result = CommentMapper.buildCommentTree([root1Comment, root2Comment]);
+      const result = CommentMapper.buildCommentTree([
+        root1Comment,
+        root2Comment,
+      ]);
 
       expect(result).toHaveLength(2);
       expect(result[0].id).toBe(root1Id);
@@ -443,13 +451,13 @@ describe('CommentMapper - 계층 구조 테스트', () => {
       const result = CommentMapper.buildCommentThread([root, child]);
 
       expect(result).toHaveLength(2);
-      
+
       const rootThread = result[0];
       expect(rootThread.depth).toBe(0);
       expect(rootThread.parentId).toBeNull();
       expect(rootThread.isRoot).toBe(true);
       expect(rootThread.hasChildren).toBe(true);
-      
+
       const childThread = result[1];
       expect(childThread.depth).toBe(1);
       expect(childThread.parentId).toBe(rootId);
@@ -474,7 +482,11 @@ describe('CommentMapper - 계층 구조 테스트', () => {
           new Date(Date.now() - 1000 * 60 * 10), // 10분 전
         );
 
-        const result = CommentMapper.isCommentEditable(comment, authorId, 1 * 60 * 60 * 1000); // 1시간 제한
+        const result = CommentMapper.isCommentEditable(
+          comment,
+          authorId,
+          1 * 60 * 60 * 1000,
+        ); // 1시간 제한
         expect(result).toBe(true);
       });
 
@@ -504,7 +516,11 @@ describe('CommentMapper - 계층 구조 테스트', () => {
           new Date(Date.now() - 1000 * 60 * 60 * 25), // 25시간 전
         );
 
-        const result = CommentMapper.isCommentEditable(comment, authorId, 24 * 60 * 60 * 1000); // 24시간 제한
+        const result = CommentMapper.isCommentEditable(
+          comment,
+          authorId,
+          24 * 60 * 60 * 1000,
+        ); // 24시간 제한
         expect(result).toBe(false);
       });
 
@@ -545,7 +561,10 @@ describe('CommentMapper - 계층 구조 테스트', () => {
           'post1',
         );
 
-        const result = CommentMapper.isCommentDeletable(comment, 'current-user');
+        const result = CommentMapper.isCommentDeletable(
+          comment,
+          'current-user',
+        );
         expect(result).toBe(false);
       });
 

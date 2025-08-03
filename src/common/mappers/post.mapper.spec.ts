@@ -103,7 +103,9 @@ describe('PostMapper', () => {
 
   describe('toEntity', () => {
     it('should convert document to entity', () => {
-      const result = PostMapper.toEntity(mockPostData as unknown as PostDocument);
+      const result = PostMapper.toEntity(
+        mockPostData as unknown as PostDocument,
+      );
 
       expect(result.id).toBe('507f1f77bcf86cd799439011');
       expect(result.title).toBe('Test Post');
@@ -113,15 +115,17 @@ describe('PostMapper', () => {
     });
 
     it('should throw error for null document', () => {
-      expect(() => PostMapper.toEntity(null as unknown as PostDocument)).toThrow(
-        'Document is required',
-      );
+      expect(() =>
+        PostMapper.toEntity(null as unknown as PostDocument),
+      ).toThrow('Document is required');
     });
   });
 
   describe('documentToResponse', () => {
     it('should convert document to response', () => {
-      const result = PostMapper.documentToResponse(mockPostData as unknown as PostDocument);
+      const result = PostMapper.documentToResponse(
+        mockPostData as unknown as PostDocument,
+      );
 
       expect(result.id).toBe('507f1f77bcf86cd799439011');
       expect(result.title).toBe('Test Post');
@@ -176,10 +180,9 @@ describe('PostMapper', () => {
 
     it('should throw error for missing post document', () => {
       expect(() =>
-        PostMapper.toResponseWithCategories(
-          null as unknown as PostDocument,
-          [mockCategoryData as unknown as CategoryDocument],
-        ),
+        PostMapper.toResponseWithCategories(null as unknown as PostDocument, [
+          mockCategoryData as unknown as CategoryDocument,
+        ]),
       ).toThrow('Post document is required');
     });
   });
@@ -230,23 +233,27 @@ describe('PostMapper', () => {
     it('should handle document with categories populated', () => {
       const populatedDoc = {
         ...mockPostData,
-        categoryIds: [{
-          ...mockCategoryData,
-          toJSON: jest.fn().mockReturnValue({
-            id: '507f1f77bcf86cd799439013',
-            name: 'Test Category',
-            slug: 'test-category',
-            color: '#FF0000',
-            order: 0,
-            isActive: true,
-            createdAt: new Date('2024-01-01'),
-            updatedAt: new Date('2024-01-01'),
-          }),
-        }],
+        categoryIds: [
+          {
+            ...mockCategoryData,
+            toJSON: jest.fn().mockReturnValue({
+              id: '507f1f77bcf86cd799439013',
+              name: 'Test Category',
+              slug: 'test-category',
+              color: '#FF0000',
+              order: 0,
+              isActive: true,
+              createdAt: new Date('2024-01-01'),
+              updatedAt: new Date('2024-01-01'),
+            }),
+          },
+        ],
       };
 
       const result = PostMapper.populatedDocumentToResponse(
-        populatedDoc as unknown as PostDocument & { categoryIds?: CategoryDocument[] },
+        populatedDoc as unknown as PostDocument & {
+          categoryIds?: CategoryDocument[];
+        },
       );
 
       expect(result).toHaveProperty('categories');
@@ -267,23 +274,25 @@ describe('PostMapper', () => {
             updatedAt: new Date('2024-01-01'),
           }),
         },
-        categoryIds: [{
-          ...mockCategoryData,
-          toJSON: jest.fn().mockReturnValue({
-            id: '507f1f77bcf86cd799439013',
-            name: 'Test Category',
-            slug: 'test-category',
-            color: '#FF0000',
-            order: 0,
-            isActive: true,
-            createdAt: new Date('2024-01-01'),
-            updatedAt: new Date('2024-01-01'),
-          }),
-        }],
+        categoryIds: [
+          {
+            ...mockCategoryData,
+            toJSON: jest.fn().mockReturnValue({
+              id: '507f1f77bcf86cd799439013',
+              name: 'Test Category',
+              slug: 'test-category',
+              color: '#FF0000',
+              order: 0,
+              isActive: true,
+              createdAt: new Date('2024-01-01'),
+              updatedAt: new Date('2024-01-01'),
+            }),
+          },
+        ],
       };
 
       const result = PostMapper.populatedDocumentToResponse(
-        populatedDoc as unknown as PostDocument & { 
+        populatedDoc as unknown as PostDocument & {
           authorId?: UserDocument;
           categoryIds?: CategoryDocument[];
         },
@@ -305,7 +314,10 @@ describe('PostMapper', () => {
 
   describe('array conversion methods', () => {
     it('should convert multiple documents to entities', () => {
-      const documents = [mockPostData, mockPostData] as unknown as PostDocument[];
+      const documents = [
+        mockPostData,
+        mockPostData,
+      ] as unknown as PostDocument[];
       const result = PostMapper.toEntities(documents);
 
       expect(result).toHaveLength(2);
@@ -313,7 +325,10 @@ describe('PostMapper', () => {
     });
 
     it('should convert multiple documents to responses', () => {
-      const documents = [mockPostData, mockPostData] as unknown as PostDocument[];
+      const documents = [
+        mockPostData,
+        mockPostData,
+      ] as unknown as PostDocument[];
       const result = PostMapper.documentsToResponses(documents);
 
       expect(result).toHaveLength(2);
