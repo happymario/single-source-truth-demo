@@ -164,16 +164,29 @@ export function ApiQueryFromZod(
         };
 
         // 타입 설정 - ApiQuery가 기대하는 형식으로
-        if (isValidOpenAPIType(fieldOpenApi) && fieldOpenApi.type === 'number') {
+        if (
+          isValidOpenAPIType(fieldOpenApi) &&
+          fieldOpenApi.type === 'number'
+        ) {
           options.type = Number;
-        } else if (isValidOpenAPIType(fieldOpenApi) && fieldOpenApi.type === 'boolean') {
+        } else if (
+          isValidOpenAPIType(fieldOpenApi) &&
+          fieldOpenApi.type === 'boolean'
+        ) {
           options.type = Boolean;
-        } else if (isValidOpenAPIType(fieldOpenApi) && fieldOpenApi.type === 'string') {
+        } else if (
+          isValidOpenAPIType(fieldOpenApi) &&
+          fieldOpenApi.type === 'string'
+        ) {
           options.type = String;
         }
 
         // enum 처리
-        if (isValidOpenAPIType(fieldOpenApi) && 'enum' in fieldOpenApi && fieldOpenApi.enum) {
+        if (
+          isValidOpenAPIType(fieldOpenApi) &&
+          'enum' in fieldOpenApi &&
+          fieldOpenApi.enum
+        ) {
           options.enum = fieldOpenApi.enum;
         }
 
@@ -184,11 +197,20 @@ export function ApiQueryFromZod(
         // 특별히 required가 필요한 경우만 true로 설정하는 로직을 추가할 수 있음
         // 현재는 모든 query parameter를 optional로 처리
 
-        if (example && typeof example === 'object' && key in example && example[key] !== undefined) {
+        if (
+          example &&
+          typeof example === 'object' &&
+          key in example &&
+          example[key] !== undefined
+        ) {
           options.example = example[key];
         }
 
-        if (isValidOpenAPIType(fieldOpenApi) && 'description' in fieldOpenApi && fieldOpenApi.description) {
+        if (
+          isValidOpenAPIType(fieldOpenApi) &&
+          'description' in fieldOpenApi &&
+          fieldOpenApi.description
+        ) {
           options.description = fieldOpenApi.description;
         }
 
@@ -203,7 +225,11 @@ export function ApiQueryFromZod(
         required: false,
       };
 
-      if (hasZodDef(schema) && '_example' in schema && schema._example !== undefined) {
+      if (
+        hasZodDef(schema) &&
+        '_example' in schema &&
+        schema._example !== undefined
+      ) {
         queryOptions.example = (schema as any)._example;
       }
 

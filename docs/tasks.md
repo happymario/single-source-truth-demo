@@ -5,30 +5,30 @@
 ### Story 1: swagger-helpers.decorator.ts 타입 안전성 개선
 **목표**: swagger-helpers.decorator.ts 파일의 모든 린트 에러 해결
 
-#### Task 1.1: 타입 인터페이스 정의
-- [ ] OpenAPISchema 인터페이스 정의
-- [ ] ApiParamConfig 인터페이스 정의  
-- [ ] ApiQueryConfig 인터페이스 정의
-- [ ] 파일: `/src/common/decorators/swagger-helpers.decorator.ts`
+#### Task 1.1: 타입 인터페이스 정의 ✅
+- [x] OpenAPISchema 인터페이스 정의
+- [x] ApiParamConfig 인터페이스 정의  
+- [x] ApiQueryConfig 인터페이스 정의
+- [x] 파일: `/src/common/decorators/swagger-helpers.decorator.ts`
 
-#### Task 1.2: 타입 가드 함수 구현
-- [ ] isZodObject 타입 가드 함수 추가
-- [ ] hasZodDef 타입 가드 함수 추가
-- [ ] isValidOpenAPIType 검증 함수 추가
-- [ ] 파일: `/src/common/decorators/swagger-helpers.decorator.ts`
+#### Task 1.2: 타입 가드 함수 구현 ✅
+- [x] isZodObject 타입 가드 함수 추가
+- [x] hasZodDef 타입 가드 함수 추가
+- [x] isValidOpenAPIType 검증 함수 추가
+- [x] 파일: `/src/common/decorators/swagger-helpers.decorator.ts`
 
-#### Task 1.3: ApiParamFromZod 함수 타입 안전성 개선
-- [ ] options 변수 타입을 ApiParamConfig로 변경
-- [ ] schema._example 접근을 안전한 방식으로 변경
-- [ ] openApiSchema 속성 접근을 타입 가드로 보호
-- [ ] 파일: `/src/common/decorators/swagger-helpers.decorator.ts`
+#### Task 1.3: ApiParamFromZod 함수 타입 안전성 개선 ✅
+- [x] options 변수 타입을 ApiParamConfig로 변경
+- [x] schema._example 접근을 안전한 방식으로 변경
+- [x] openApiSchema 속성 접근을 타입 가드로 보호
+- [x] 파일: `/src/common/decorators/swagger-helpers.decorator.ts`
 
-#### Task 1.4: ApiQueryFromZod 함수 타입 안전성 개선
-- [ ] fieldSchema 타입 캐스팅을 안전한 방식으로 변경
-- [ ] fieldOpenApi 속성 접근을 타입 가드로 보호
-- [ ] options 변수 타입을 ApiQueryConfig로 변경
-- [ ] console.log 디버깅 코드 제거
-- [ ] 파일: `/src/common/decorators/swagger-helpers.decorator.ts`
+#### Task 1.4: ApiQueryFromZod 함수 타입 안전성 개선 ✅
+- [x] fieldSchema 타입 캐스팅을 안전한 방식으로 변경
+- [x] fieldOpenApi 속성 접근을 타입 가드로 보호
+- [x] options 변수 타입을 ApiQueryConfig로 변경
+- [x] console.log 디버깅 코드 제거
+- [x] 파일: `/src/common/decorators/swagger-helpers.decorator.ts`
 
 #### Task 1.5: extractExampleFromSchema 함수 개선
 - [ ] 매개변수 타입을 ZodSchema로 명시
