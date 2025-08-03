@@ -12,7 +12,7 @@ describe('Comment 계층 구조 핵심 기능 테스트', () => {
       it('부모 댓글의 경로에 자신의 ID를 추가해야 한다', () => {
         const parentId = new Types.ObjectId().toHexString();
         const grandParentId = new Types.ObjectId().toHexString();
-        
+
         const mockParent = {
           id: parentId,
           path: [grandParentId], // 할아버지만 있는 경로
@@ -23,8 +23,10 @@ describe('Comment 계층 구조 핵심 기능 테스트', () => {
       });
 
       it('깊은 계층에서도 올바른 경로를 생성해야 한다', () => {
-        const ids = Array.from({ length: 4 }, () => new Types.ObjectId().toHexString());
-        
+        const ids = Array.from({ length: 4 }, () =>
+          new Types.ObjectId().toHexString(),
+        );
+
         const mockParent = {
           id: ids[3],
           path: [ids[0], ids[1], ids[2]], // 3단계까지의 경로
@@ -192,7 +194,9 @@ describe('Comment 계층 구조 핵심 기능 테스트', () => {
           mentionedUserIds: [],
           createdAt: new Date('2023-01-01'),
           updatedAt: new Date('2023-01-01'),
-          toJSON: function() { return this; },
+          toJSON: function () {
+            return this;
+          },
         },
         {
           id: child1Id,
@@ -212,7 +216,9 @@ describe('Comment 계층 구조 핵심 기능 테스트', () => {
           mentionedUserIds: [],
           createdAt: new Date('2023-01-02'),
           updatedAt: new Date('2023-01-02'),
-          toJSON: function() { return this; },
+          toJSON: function () {
+            return this;
+          },
         },
         {
           id: child2Id,
@@ -232,7 +238,9 @@ describe('Comment 계층 구조 핵심 기능 테스트', () => {
           mentionedUserIds: [],
           createdAt: new Date('2023-01-03'),
           updatedAt: new Date('2023-01-03'),
-          toJSON: function() { return this; },
+          toJSON: function () {
+            return this;
+          },
         },
         {
           id: grandChild1Id,
@@ -252,7 +260,9 @@ describe('Comment 계층 구조 핵심 기능 테스트', () => {
           mentionedUserIds: [],
           createdAt: new Date('2023-01-04'),
           updatedAt: new Date('2023-01-04'),
-          toJSON: function() { return this; },
+          toJSON: function () {
+            return this;
+          },
         },
       ] as any[];
 
@@ -301,7 +311,9 @@ describe('Comment 계층 구조 핵심 기능 테스트', () => {
           mentionedUserIds: [],
           createdAt: new Date('2023-01-04'),
           updatedAt: new Date('2023-01-04'),
-          toJSON: function() { return this; },
+          toJSON: function () {
+            return this;
+          },
         },
         {
           id: rootId,
@@ -321,7 +333,9 @@ describe('Comment 계층 구조 핵심 기능 테스트', () => {
           mentionedUserIds: [],
           createdAt: new Date('2023-01-01'),
           updatedAt: new Date('2023-01-01'),
-          toJSON: function() { return this; },
+          toJSON: function () {
+            return this;
+          },
         },
         {
           id: childId,
@@ -341,21 +355,23 @@ describe('Comment 계층 구조 핵심 기능 테스트', () => {
           mentionedUserIds: [],
           createdAt: new Date('2023-01-02'),
           updatedAt: new Date('2023-01-02'),
-          toJSON: function() { return this; },
+          toJSON: function () {
+            return this;
+          },
         },
       ] as any[];
 
       const thread = CommentMapper.buildCommentThread(mockComments);
 
       expect(thread).toHaveLength(3);
-      
+
       // 깊이 순으로 정렬되었는지 확인
       expect(thread[0].depth).toBe(0);
       expect(thread[0].content).toBe('루트 댓글 (깊이 0)');
-      
+
       expect(thread[1].depth).toBe(1);
       expect(thread[1].content).toBe('답글 (깊이 1)');
-      
+
       expect(thread[2].depth).toBe(2);
       expect(thread[2].content).toBe('대답글 (깊이 2)');
     });
@@ -380,7 +396,9 @@ describe('Comment 계층 구조 핵심 기능 테스트', () => {
           mentionedUserIds: [],
           createdAt: new Date('2023-01-02'),
           updatedAt: new Date('2023-01-02'),
-          toJSON: function() { return this; },
+          toJSON: function () {
+            return this;
+          },
         },
         {
           id: new Types.ObjectId().toHexString(),
@@ -400,7 +418,9 @@ describe('Comment 계층 구조 핵심 기능 테스트', () => {
           mentionedUserIds: [],
           createdAt: new Date('2023-01-01'),
           updatedAt: new Date('2023-01-01'),
-          toJSON: function() { return this; },
+          toJSON: function () {
+            return this;
+          },
         },
         {
           id: new Types.ObjectId().toHexString(),
@@ -420,14 +440,16 @@ describe('Comment 계층 구조 핵심 기능 테스트', () => {
           mentionedUserIds: [],
           createdAt: new Date('2023-01-03'),
           updatedAt: new Date('2023-01-03'),
-          toJSON: function() { return this; },
+          toJSON: function () {
+            return this;
+          },
         },
       ] as any[];
 
       const thread = CommentMapper.buildCommentThread(mockComments);
 
       expect(thread).toHaveLength(3);
-      
+
       // 생성일시 순으로 정렬되었는지 확인
       expect(thread[0].content).toBe('첫 번째 댓글');
       expect(thread[1].content).toBe('두 번째 댓글');

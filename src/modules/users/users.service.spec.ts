@@ -50,7 +50,7 @@ describe('UsersService', () => {
       ...dto,
       save: jest.fn().mockResolvedValue(mockUser),
     }));
-    
+
     // Add static methods to the constructor function
     mockModel.findOne = jest.fn();
     mockModel.findById = jest.fn();

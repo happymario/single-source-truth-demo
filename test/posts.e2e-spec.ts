@@ -404,7 +404,9 @@ describe('Posts E2E', () => {
         .send(statusDto)
         .expect(200);
 
-      expect(response.body.message).toBe('게시물 상태가 성공적으로 변경되었습니다.');
+      expect(response.body.message).toBe(
+        '게시물 상태가 성공적으로 변경되었습니다.',
+      );
       expect(response.body.post.status).toBe('published');
       expect(response.body.post.publishedAt).toBeDefined();
     });

@@ -3,6 +3,105 @@ import { ZodSchema, ZodObject } from 'zod';
 import { zodToOpenAPI } from '../utils/zod-to-openapi';
 
 /**
+ * OpenAPI 스키마 타입 정의
+ */
+interface OpenAPISchema {
+  type?: 'string' | 'number' | 'boolean' | 'object' | 'array' | 'integer';
+  enum?: string[];
+  description?: string;
+  example?: unknown;
+  format?: string;
+  minimum?: number;
+  maximum?: number;
+  pattern?: string;
+  minLength?: number;
+  maxLength?: number;
+  items?: OpenAPISchema;
+  properties?: Record<string, OpenAPISchema>;
+  required?: string[];
+  nullable?: boolean;
+  oneOf?: OpenAPISchema[];
+  const?: unknown;
+  default?: unknown;
+}
+
+/**
+ * API 파라미터 설정 타입 정의
+ */
+interface ApiParamConfig {
+  name: string;
+  schema: OpenAPISchema;
+  required: boolean;
+  example?: unknown;
+  description?: string;
+}
+
+/**
+ * API 쿼리 설정 타입 정의
+ */
+interface ApiQueryConfig {
+  name: string;
+  type?: NumberConstructor | StringConstructor | BooleanConstructor;
+  enum?: string[];
+  example?: unknown;
+  description?: string;
+  required: boolean;
+}
+
+/**
+ * 타입 가드 함수들
+ */
+
+/**
+ * ZodObject인지 확인하는 타입 가드
+ */
+function isZodObject(schema: ZodSchema): schema is ZodObject<any> {
+  return schema instanceof ZodObject;
+}
+
+/**
+ * Zod 스키마가 _def 속성을 가지고 있는지 확인하는 타입 가드
+ */
+function hasZodDef(schema: unknown): schema is { _def: any } {
+  return typeof schema === 'object' && schema !== null && '_def' in schema;
+}
+
+/**
+ * Zod 스키마가 _example 속성을 가지고 있는지 확인하는 타입 가드
+ */
+function hasExample(schema: unknown): schema is { _example: unknown } {
+  return (
+    typeof schema === 'object' &&
+    schema !== null &&
+    '_example' in schema &&
+    (schema as { _example?: unknown })._example !== undefined
+  );
+}
+
+/**
+ * OpenAPI 스키마가 유효한 타입인지 확인하는 검증 함수
+ */
+function isValidOpenAPIType(schema: unknown): schema is OpenAPISchema {
+  if (typeof schema !== 'object' || schema === null) {
+    return false;
+  }
+
+  const openApiSchema = schema as OpenAPISchema;
+  const validTypes = [
+    'string',
+    'number',
+    'boolean',
+    'object',
+    'array',
+    'integer',
+  ];
+
+  return (
+    openApiSchema.type === undefined || validTypes.includes(openApiSchema.type)
+  );
+}
+
+/**
  * ZodParam과 함께 사용하여 Swagger 문서화를 추가하는 헬퍼 함수
  *
  * @example
@@ -16,21 +115,21 @@ import { zodToOpenAPI } from '../utils/zod-to-openapi';
  */
 export function ApiParamFromZod(
   name: string,
-  schema: ZodSchema & { _example?: any },
+  schema: ZodSchema & { _example?: unknown },
 ): MethodDecorator {
-  const openApiSchema = zodToOpenAPI(schema);
+  const openApiSchema: OpenAPISchema = zodToOpenAPI(schema);
 
-  const options: any = {
+  const options: ApiParamConfig = {
     name,
     schema: openApiSchema,
     required: true,
   };
 
-  if (schema._example !== undefined) {
+  if (hasExample(schema)) {
     options.example = schema._example;
   }
 
-  if (openApiSchema.description) {
+  if (isValidOpenAPIType(openApiSchema) && openApiSchema.description) {
     options.description = openApiSchema.description;
   }
 
@@ -54,7 +153,7 @@ export function ApiQueryFromZod(
   schema: ZodSchema & { _example?: any },
 ): MethodDecorator {
   return (
-    target: any,
+    target: object,
     propertyKey: string | symbol,
     descriptor: PropertyDescriptor,
   ) => {
@@ -64,32 +163,44 @@ export function ApiQueryFromZod(
       const example = extractExampleFromSchema(schema);
 
       for (const [key, fieldSchema] of Object.entries(shape)) {
-        const fieldOpenApi = zodToOpenAPI(fieldSchema as ZodSchema);
+        if (!isZodObject(fieldSchema) && !hasZodDef(fieldSchema)) {
+          continue;
+        }
 
-        // 디버깅용 로그
-        console.log(`Field: ${key}`, {
-          fieldSchema: fieldSchema._def,
-          fieldOpenApi,
-          example: example ? example[key] : undefined,
-        });
+        const fieldOpenApi: OpenAPISchema = zodToOpenAPI(
+          fieldSchema as ZodSchema,
+        );
 
         // ApiQuery는 스칼라 값만 받으므로 type과 example만 추출
-        const options: any = {
+        const options: ApiQueryConfig = {
           name: key,
           required: false, // Query 파라미터는 대부분 선택사항
         };
 
         // 타입 설정 - ApiQuery가 기대하는 형식으로
-        if (fieldOpenApi.type === 'number') {
+        if (
+          isValidOpenAPIType(fieldOpenApi) &&
+          fieldOpenApi.type === 'number'
+        ) {
           options.type = Number;
-        } else if (fieldOpenApi.type === 'boolean') {
+        } else if (
+          isValidOpenAPIType(fieldOpenApi) &&
+          fieldOpenApi.type === 'boolean'
+        ) {
           options.type = Boolean;
-        } else if (fieldOpenApi.type === 'string') {
+        } else if (
+          isValidOpenAPIType(fieldOpenApi) &&
+          fieldOpenApi.type === 'string'
+        ) {
           options.type = String;
         }
 
         // enum 처리
-        if (fieldOpenApi.enum) {
+        if (
+          isValidOpenAPIType(fieldOpenApi) &&
+          'enum' in fieldOpenApi &&
+          fieldOpenApi.enum
+        ) {
           options.enum = fieldOpenApi.enum;
         }
 
@@ -100,11 +211,21 @@ export function ApiQueryFromZod(
         // 특별히 required가 필요한 경우만 true로 설정하는 로직을 추가할 수 있음
         // 현재는 모든 query parameter를 optional로 처리
 
-        if (example && example[key] !== undefined) {
-          options.example = example[key];
+        if (
+          example &&
+          typeof example === 'object' &&
+          example !== null &&
+          key in example &&
+          (example as Record<string, unknown>)[key] !== undefined
+        ) {
+          options.example = (example as Record<string, unknown>)[key];
         }
 
-        if (fieldOpenApi.description) {
+        if (
+          isValidOpenAPIType(fieldOpenApi) &&
+          'description' in fieldOpenApi &&
+          fieldOpenApi.description
+        ) {
           options.description = fieldOpenApi.description;
         }
 
@@ -113,40 +234,53 @@ export function ApiQueryFromZod(
       }
     } else {
       // 단일 스키마인 경우
-      const openApiSchema = zodToOpenAPI(schema);
-      const options: any = {
+      const openApiSchema: OpenAPISchema = zodToOpenAPI(schema);
+      const queryOptions: Record<string, unknown> = {
         schema: openApiSchema,
         required: false,
       };
 
-      if ((schema as any)._example !== undefined) {
-        options.example = (schema as any)._example;
+      if (hasExample(schema)) {
+        queryOptions.example = schema._example;
       }
 
-      ApiQuery(options)(target, propertyKey, descriptor);
+      ApiQuery(queryOptions)(target, propertyKey, descriptor);
     }
   };
 }
 
 /**
+ * Example 값의 타입 정의
+ */
+type ExampleValue =
+  | string
+  | number
+  | boolean
+  | null
+  | Record<string, unknown>
+  | unknown[];
+
+/**
  * 스키마에서 example 값을 추출하는 헬퍼 함수
  * 중첩된 스키마(extend, merge)에서도 example을 찾음
  */
-function extractExampleFromSchema(schema: any): any {
+function extractExampleFromSchema(schema: ZodSchema): ExampleValue | undefined {
   // 직접 _example이 있는 경우
-  if (schema._example) {
-    return schema._example;
+  if (hasExample(schema)) {
+    return schema._example as ExampleValue;
   }
 
   // ZodObject의 경우 shape에서 각 필드의 example 수집
   if (schema instanceof ZodObject) {
     const shape = schema.shape;
-    const result: any = {};
+    const result: Record<string, unknown> = {};
 
     for (const [key, fieldSchema] of Object.entries(shape)) {
-      const fieldExample = extractExampleFromSchema(fieldSchema);
-      if (fieldExample !== undefined) {
-        result[key] = fieldExample;
+      if (isZodObject(fieldSchema) || hasZodDef(fieldSchema)) {
+        const fieldExample = extractExampleFromSchema(fieldSchema as ZodSchema);
+        if (fieldExample !== undefined) {
+          result[key] = fieldExample;
+        }
       }
     }
 
@@ -154,13 +288,35 @@ function extractExampleFromSchema(schema: any): any {
   }
 
   // ZodDefault의 경우 기본값 사용
-  if (schema._def?.typeName === 'ZodDefault') {
-    return schema._def.defaultValue();
+  if (
+    hasZodDef(schema) &&
+    '_def' in schema &&
+    schema._def &&
+    typeof schema._def === 'object' &&
+    'typeName' in schema._def &&
+    schema._def.typeName === 'ZodDefault' &&
+    'defaultValue' in schema._def &&
+    typeof schema._def.defaultValue === 'function'
+  ) {
+    try {
+      const defaultValue = (schema._def.defaultValue as () => unknown)();
+      return defaultValue as ExampleValue;
+    } catch {
+      return undefined;
+    }
   }
 
   // ZodEffects (withExample로 감싸진 경우)
-  if (schema._def?.typeName === 'ZodEffects') {
-    return extractExampleFromSchema(schema._def.schema);
+  if (
+    hasZodDef(schema) &&
+    '_def' in schema &&
+    schema._def &&
+    typeof schema._def === 'object' &&
+    'typeName' in schema._def &&
+    schema._def.typeName === 'ZodEffects' &&
+    'schema' in schema._def
+  ) {
+    return extractExampleFromSchema(schema._def.schema as ZodSchema);
   }
 
   return undefined;
@@ -185,7 +341,7 @@ export function ApiParamsFromZod(
   params: Record<string, ZodSchema & { _example?: any }>,
 ): MethodDecorator {
   return (
-    target: any,
+    target: object,
     propertyKey: string | symbol,
     descriptor: PropertyDescriptor,
   ) => {

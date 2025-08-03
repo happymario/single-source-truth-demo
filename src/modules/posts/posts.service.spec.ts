@@ -133,7 +133,9 @@ describe('PostsService', () => {
       const result = await service.create(createPostDto);
 
       expect(postModel.findOne).toHaveBeenCalledWith({ slug: 'test-post' });
-      expect(userModel.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439012');
+      expect(userModel.findById).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439012',
+      );
       expect(categoryModel.countDocuments).toHaveBeenCalledWith({
         _id: { $in: ['507f1f77bcf86cd799439013'] },
       });
@@ -289,9 +291,14 @@ describe('PostsService', () => {
         ...updateDto,
       });
 
-      const result = await service.update('507f1f77bcf86cd799439011', updateDto);
+      const result = await service.update(
+        '507f1f77bcf86cd799439011',
+        updateDto,
+      );
 
-      expect(postModel.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+      expect(postModel.findById).toHaveBeenCalledWith(
+        '507f1f77bcf86cd799439011',
+      );
       expect(postModel.findByIdAndUpdate).toHaveBeenCalledWith(
         '507f1f77bcf86cd799439011',
         updateDto,
@@ -303,9 +310,9 @@ describe('PostsService', () => {
     it('should throw NotFoundException if post not found', async () => {
       postModel.findById.mockResolvedValue(null);
 
-      await expect(
-        service.update('nonexistent', updateDto),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.update('nonexistent', updateDto)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should check slug uniqueness when updating slug', async () => {

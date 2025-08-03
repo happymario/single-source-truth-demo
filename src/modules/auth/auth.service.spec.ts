@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { ConflictException, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  UnauthorizedException,
+  NotFoundException,
+} from '@nestjs/common';
 // bcrypt를 jest.mock으로 모킹
 jest.mock('bcrypt', () => ({
   hash: jest.fn(),
@@ -28,7 +32,7 @@ describe('AuthService', () => {
     isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
-    toJSON: function() {
+    toJSON: function () {
       return {
         id: this.id,
         email: this.email,
@@ -46,7 +50,7 @@ describe('AuthService', () => {
     verify: jest.fn(),
   };
 
-  const mockUserModel = function(userData: any) {
+  const mockUserModel = function (userData: any) {
     const now = new Date();
     const savedData = {
       ...userData,
@@ -54,7 +58,7 @@ describe('AuthService', () => {
       id: new Types.ObjectId().toHexString(),
       createdAt: now,
       updatedAt: now,
-      toJSON: function() {
+      toJSON: function () {
         return {
           id: this.id,
           email: this.email,
@@ -66,7 +70,7 @@ describe('AuthService', () => {
         };
       },
     };
-    
+
     return {
       ...userData,
       save: jest.fn().mockResolvedValue(savedData),
@@ -100,7 +104,7 @@ describe('AuthService', () => {
 
     // Reset mocks
     jest.clearAllMocks();
-    
+
     // bcrypt mock setup
     const bcrypt = require('bcrypt');
     bcrypt.hash.mockResolvedValue('hashedPassword123');
@@ -119,7 +123,7 @@ describe('AuthService', () => {
       (userModel.findOne as jest.Mock).mockReturnValue({
         exec: jest.fn().mockResolvedValue(null),
       });
-      
+
       // 사용자 생성 mock
       const mockNewUser = {
         ...mockUser,
@@ -129,7 +133,7 @@ describe('AuthService', () => {
           ...registerDto,
         }),
       };
-      
+
       // userModel constructor mock
       (userModel as any) = jest.fn().mockImplementation(() => mockNewUser);
 
@@ -142,7 +146,7 @@ describe('AuthService', () => {
       expect(result.user.email).toBe(registerDto.email);
       expect(result.tokens).toBeDefined();
       expect(result.tokens.accessToken).toBe('mock-token');
-      
+
       const bcrypt = require('bcrypt');
       expect(bcrypt.hash).toHaveBeenCalledWith(registerDto.password, 12);
     });
@@ -159,7 +163,9 @@ describe('AuthService', () => {
         exec: jest.fn().mockResolvedValue(mockUser),
       });
 
-      await expect(service.register(registerDto)).rejects.toThrow(ConflictException);
+      await expect(service.register(registerDto)).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 
@@ -171,11 +177,13 @@ describe('AuthService', () => {
       };
 
       // 사용자 검증 성공
-      jest.spyOn(service, 'validateUser').mockResolvedValue(mockUser as UserDocument);
-      
+      jest
+        .spyOn(service, 'validateUser')
+        .mockResolvedValue(mockUser as UserDocument);
+
       // 마지막 로그인 시간 업데이트
       (userModel.findByIdAndUpdate as jest.Mock).mockResolvedValue(mockUser);
-      
+
       // JWT 토큰 생성
       (jwtService.sign as jest.Mock).mockReturnValue('mock-token');
 
@@ -196,7 +204,9 @@ describe('AuthService', () => {
       // 사용자 검증 실패
       jest.spyOn(service, 'validateUser').mockResolvedValue(null);
 
-      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
+      await expect(service.login(loginDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
@@ -208,7 +218,7 @@ describe('AuthService', () => {
       (userModel.findOne as jest.Mock).mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockUser),
       });
-      
+
       const bcrypt = require('bcrypt');
       bcrypt.compare.mockResolvedValue(true);
 
@@ -239,7 +249,7 @@ describe('AuthService', () => {
       (userModel.findOne as jest.Mock).mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockUser),
       });
-      
+
       const bcrypt = require('bcrypt');
       bcrypt.compare.mockResolvedValue(false);
 
@@ -276,7 +286,7 @@ describe('AuthService', () => {
       (userModel.findById as jest.Mock).mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockUser),
       });
-      
+
       const bcrypt = require('bcrypt');
       bcrypt.compare.mockResolvedValue(true);
       bcrypt.hash.mockResolvedValue('newHashedPassword');
@@ -285,8 +295,14 @@ describe('AuthService', () => {
       const result = await service.changePassword(userId, changePasswordDto);
 
       expect(result.message).toBe('Password changed successfully');
-      expect(bcrypt.compare).toHaveBeenCalledWith(changePasswordDto.currentPassword, mockUser.password);
-      expect(bcrypt.hash).toHaveBeenCalledWith(changePasswordDto.newPassword, 12);
+      expect(bcrypt.compare).toHaveBeenCalledWith(
+        changePasswordDto.currentPassword,
+        mockUser.password,
+      );
+      expect(bcrypt.hash).toHaveBeenCalledWith(
+        changePasswordDto.newPassword,
+        12,
+      );
     });
 
     it('현재 비밀번호가 틀린 경우 UnauthorizedException을 발생시켜야 한다', async () => {
@@ -299,12 +315,13 @@ describe('AuthService', () => {
       (userModel.findById as jest.Mock).mockReturnValue({
         exec: jest.fn().mockResolvedValue(mockUser),
       });
-      
+
       const bcrypt = require('bcrypt');
       bcrypt.compare.mockResolvedValue(false);
 
-      await expect(service.changePassword(userId, changePasswordDto))
-        .rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.changePassword(userId, changePasswordDto),
+      ).rejects.toThrow(UnauthorizedException);
     });
 
     it('존재하지 않는 사용자의 경우 NotFoundException을 발생시켜야 한다', async () => {
@@ -318,15 +335,20 @@ describe('AuthService', () => {
         exec: jest.fn().mockResolvedValue(null),
       });
 
-      await expect(service.changePassword(userId, changePasswordDto))
-        .rejects.toThrow(NotFoundException);
+      await expect(
+        service.changePassword(userId, changePasswordDto),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('refreshTokens', () => {
     it('유효한 리프레시 토큰으로 새 토큰을 발급해야 한다', async () => {
       const refreshToken = 'valid-refresh-token';
-      const mockPayload = { sub: mockUser.id, email: mockUser.email, role: mockUser.role };
+      const mockPayload = {
+        sub: mockUser.id,
+        email: mockUser.email,
+        role: mockUser.role,
+      };
 
       (jwtService.verify as jest.Mock).mockReturnValue(mockPayload);
       (userModel.findById as jest.Mock).mockReturnValue({
@@ -349,8 +371,9 @@ describe('AuthService', () => {
         throw new Error('Invalid token');
       });
 
-      await expect(service.refreshTokens(refreshToken))
-        .rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshTokens(refreshToken)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 });

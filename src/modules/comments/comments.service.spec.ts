@@ -63,8 +63,16 @@ describe('CommentsService - 계층 구조 테스트', () => {
       postId: mockPost.id,
       parentId,
       depth,
-      path: path.filter(p => p).map(p => Types.ObjectId.isValid(p) ? p : new Types.ObjectId().toHexString()),
-      childIds: childIds.filter(c => c).map(c => Types.ObjectId.isValid(c) ? c : new Types.ObjectId().toHexString()),
+      path: path
+        .filter((p) => p)
+        .map((p) =>
+          Types.ObjectId.isValid(p) ? p : new Types.ObjectId().toHexString(),
+        ),
+      childIds: childIds
+        .filter((c) => c)
+        .map((c) =>
+          Types.ObjectId.isValid(c) ? c : new Types.ObjectId().toHexString(),
+        ),
       status: 'active' as const,
       likeCount: 0,
       reportCount: 0,
@@ -76,7 +84,7 @@ describe('CommentsService - 계층 구조 테스트', () => {
       createdAt: new Date('2023-01-01'),
       updatedAt: new Date('2023-01-01'),
       save: jest.fn(),
-      toJSON: function() {
+      toJSON: function () {
         return {
           id: this.id,
           content: this.content,
@@ -114,12 +122,12 @@ describe('CommentsService - 계층 구조 테스트', () => {
         save: jest.fn().mockResolvedValue({
           ...data,
           id,
-          toJSON: function() {
+          toJSON: function () {
             return { ...this };
           },
         }),
-        toJSON: function() {
-          return { 
+        toJSON: function () {
+          return {
             id: this.id,
             content: this.content,
             authorId: this.authorId,
@@ -143,7 +151,7 @@ describe('CommentsService - 계층 구조 테스트', () => {
       };
       return instance;
     });
-    
+
     // 정적 메서드들 추가
     Object.assign(mockCommentModel, {
       findById: jest.fn(),
@@ -182,7 +190,9 @@ describe('CommentsService - 계층 구조 테스트', () => {
     }).compile();
 
     service = module.get<CommentsService>(CommentsService);
-    commentModel = module.get<Model<CommentDocument>>(getModelToken(CommentModel.name));
+    commentModel = module.get<Model<CommentDocument>>(
+      getModelToken(CommentModel.name),
+    );
     userModel = module.get<Model<UserDocument>>(getModelToken(UserModel.name));
     postModel = module.get<Model<PostDocument>>(getModelToken(PostModel.name));
   });
@@ -195,7 +205,7 @@ describe('CommentsService - 계층 구조 테스트', () => {
       };
 
       const mockComment = createMockComment(createCommentDto.content);
-      
+
       (postModel.findById as jest.Mock).mockResolvedValue(mockPost);
       (userModel.findById as jest.Mock).mockResolvedValue(mockUser);
 
@@ -225,13 +235,15 @@ describe('CommentsService - 계층 구조 테스트', () => {
       (postModel.findById as jest.Mock).mockResolvedValue(mockPost);
       (userModel.findById as jest.Mock).mockResolvedValue(mockUser);
       (commentModel.findById as jest.Mock).mockResolvedValue(parentComment);
-      (commentModel.findByIdAndUpdate as jest.Mock).mockResolvedValue(parentComment);
+      (commentModel.findByIdAndUpdate as jest.Mock).mockResolvedValue(
+        parentComment,
+      );
 
       const result = await service.create(createCommentDto, mockUser.id);
 
       expect(result).toBeDefined();
       expect(result.content).toBe(createCommentDto.content);
-      
+
       // 부모 댓글의 childIds 업데이트 확인
       expect(commentModel.findByIdAndUpdate).toHaveBeenCalledWith(
         parentComment.id,
@@ -252,7 +264,7 @@ describe('CommentsService - 계층 구조 테스트', () => {
       (commentModel.findById as jest.Mock).mockResolvedValue(parentComment);
 
       await expect(
-        service.create(createCommentDto, mockUser.id)
+        service.create(createCommentDto, mockUser.id),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -272,7 +284,7 @@ describe('CommentsService - 계층 구조 테스트', () => {
       (commentModel.findById as jest.Mock).mockResolvedValue(parentComment);
 
       await expect(
-        service.create(createCommentDto, mockUser.id)
+        service.create(createCommentDto, mockUser.id),
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -283,19 +295,49 @@ describe('CommentsService - 계층 구조 테스트', () => {
       const child1Id = new Types.ObjectId().toHexString();
       const child2Id = new Types.ObjectId().toHexString();
       const grandChild1Id = new Types.ObjectId().toHexString();
-      
-      const rootComment1 = createMockComment('루트 댓글 1', null, 0, [], [child1Id, child2Id]);
+
+      const rootComment1 = createMockComment(
+        '루트 댓글 1',
+        null,
+        0,
+        [],
+        [child1Id, child2Id],
+      );
       const rootComment2 = createMockComment('루트 댓글 2', null, 0, [], []);
-      const childComment1 = createMockComment('답글 1', rootComment1.id, 1, [rootComment1.id], [grandChild1Id]);
-      const childComment2 = createMockComment('답글 2', rootComment1.id, 1, [rootComment1.id], []);
-      const grandChildComment1 = createMockComment('대답글 1', childComment1.id, 2, [rootComment1.id, childComment1.id], []);
-      
+      const childComment1 = createMockComment(
+        '답글 1',
+        rootComment1.id,
+        1,
+        [rootComment1.id],
+        [grandChild1Id],
+      );
+      const childComment2 = createMockComment(
+        '답글 2',
+        rootComment1.id,
+        1,
+        [rootComment1.id],
+        [],
+      );
+      const grandChildComment1 = createMockComment(
+        '대답글 1',
+        childComment1.id,
+        2,
+        [rootComment1.id, childComment1.id],
+        [],
+      );
+
       // ID를 올바르게 설정
       childComment1.id = child1Id;
       childComment2.id = child2Id;
       grandChildComment1.id = grandChild1Id;
 
-      const mockComments = [rootComment1, rootComment2, childComment1, childComment2, grandChildComment1];
+      const mockComments = [
+        rootComment1,
+        rootComment2,
+        childComment1,
+        childComment2,
+        grandChildComment1,
+      ];
 
       const mockQuery = {
         sort: jest.fn().mockReturnThis(),
@@ -317,7 +359,7 @@ describe('CommentsService - 계층 구조 테스트', () => {
     it('스레드 구조로 댓글을 조회할 수 있어야 한다', async () => {
       const rootId = new Types.ObjectId().toHexString();
       const childId = new Types.ObjectId().toHexString();
-      
+
       const mockComments = [
         createMockComment('루트 댓글', null, 0, []),
         createMockComment('답글', rootId, 1, [rootId]),
@@ -450,7 +492,11 @@ describe('CommentsService - 계층 구조 테스트', () => {
       });
       (userModel.findById as jest.Mock).mockResolvedValue(mockUser);
 
-      const result = await service.update(mockComment.id, updateDto, mockUser.id);
+      const result = await service.update(
+        mockComment.id,
+        updateDto,
+        mockUser.id,
+      );
 
       expect(result).toBeDefined();
       expect(commentModel.findByIdAndUpdate).toHaveBeenCalledWith(
@@ -471,7 +517,7 @@ describe('CommentsService - 계층 구조 테스트', () => {
       (commentModel.findById as jest.Mock).mockResolvedValue(mockComment);
 
       await expect(
-        service.update(mockComment.id, updateDto, mockUser.id)
+        service.update(mockComment.id, updateDto, mockUser.id),
       ).rejects.toThrow('You can only edit your own comments');
     });
 
@@ -547,17 +593,17 @@ describe('CommentsService - 계층 구조 테스트', () => {
 
       (commentModel.findById as jest.Mock).mockReturnValue(mockQuery);
 
-      await expect(
-        service.findOne(nonExistentId)
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.findOne(nonExistentId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('잘못된 ObjectId 형식 시 BadRequestException을 발생시켜야 한다', async () => {
       const invalidId = 'invalid-id';
 
-      await expect(
-        service.findOne(invalidId)
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.findOne(invalidId)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('존재하지 않는 게시물에 댓글 작성 시 NotFoundException을 발생시켜야 한다', async () => {
@@ -569,7 +615,7 @@ describe('CommentsService - 계층 구조 테스트', () => {
       (postModel.findById as jest.Mock).mockResolvedValue(null);
 
       await expect(
-        service.create(createCommentDto, mockUser.id)
+        service.create(createCommentDto, mockUser.id),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -585,7 +631,7 @@ describe('CommentsService - 계층 구조 테스트', () => {
       (commentModel.findById as jest.Mock).mockResolvedValue(null);
 
       await expect(
-        service.create(createCommentDto, mockUser.id)
+        service.create(createCommentDto, mockUser.id),
       ).rejects.toThrow(NotFoundException);
     });
   });

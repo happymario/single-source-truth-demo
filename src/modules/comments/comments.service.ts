@@ -102,8 +102,8 @@ export class CommentsService {
 
     // 부모 댓글의 childIds 업데이트
     if (parentComment) {
-      await this.commentModel.findByIdAndUpdate(parentComment.id, {
-        $push: { childIds: savedComment.id },
+      await this.commentModel.findByIdAndUpdate(parentComment._id, {
+        $push: { childIds: savedComment._id },
       });
     }
 
@@ -244,10 +244,7 @@ export class CommentsService {
           populatedComment.authorId &&
           typeof populatedComment.authorId === 'object'
         ) {
-          authorMap!.set(
-            comment.authorId.toString(),
-            populatedComment.authorId,
-          );
+          authorMap!.set(String(comment.authorId), populatedComment.authorId);
         }
       });
     }
@@ -296,10 +293,7 @@ export class CommentsService {
           populatedComment.authorId &&
           typeof populatedComment.authorId === 'object'
         ) {
-          authorMap!.set(
-            comment.authorId.toString(),
-            populatedComment.authorId,
-          );
+          authorMap!.set(String(comment.authorId), populatedComment.authorId);
         }
       });
     }
@@ -698,7 +692,7 @@ export class CommentsService {
     }
 
     const path = Array.isArray(parentComment.path) ? parentComment.path : [];
-    return path.concat(parentComment.id);
+    return path.concat([parentComment.id]);
   }
 
   /**

@@ -80,7 +80,10 @@ describe('CategoryMapper', () => {
       expect(result).toHaveProperty('id', '507f1f77bcf86cd799439011');
       expect(result).toHaveProperty('name', 'Technology');
       expect(result).toHaveProperty('slug', 'technology');
-      expect(result).toHaveProperty('description', 'Technology related articles');
+      expect(result).toHaveProperty(
+        'description',
+        'Technology related articles',
+      );
       expect(result).toHaveProperty('color', '#FF5733');
       expect(result).toHaveProperty('icon', '💻');
       expect(result).toHaveProperty('parentId', '507f1f77bcf86cd799439012');
