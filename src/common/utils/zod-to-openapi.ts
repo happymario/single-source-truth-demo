@@ -79,16 +79,20 @@ export function zodToOpenAPI(schema: ZodSchema & { _example?: any }): any {
  */
 function convertSchema(schema: ZodSchema): any {
   // ZodEffects (z.coerce 등) 처리
-  if ((schema as any)._def?.typeName === 'ZodEffects') {
-    const innerSchema = (schema as any)._def.schema;
-    const result = convertSchema(innerSchema);
+  if (isZodEffects(schema)) {
+    if (hasZodDef(schema) && 'schema' in schema._def) {
+      const innerSchema = schema._def.schema as ZodSchema;
+      const result = convertSchema(innerSchema);
 
-    // coerce의 경우 타입 정보 유지
-    if ((schema as any)._def.effect?.type === 'preprocess') {
+      // coerce의 경우 타입 정보 유지
+      if (hasZodDef(schema) && 'effect' in schema._def && 
+          typeof schema._def.effect === 'object' && schema._def.effect !== null &&
+          'type' in schema._def.effect && schema._def.effect.type === 'preprocess') {
+        return result;
+      }
+
       return result;
     }
-
-    return result;
   }
 
   // ZodDefault 처리
