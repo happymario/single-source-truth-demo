@@ -18,16 +18,18 @@ import {
  */
 interface ZodDef {
   typeName: string;
+  type?: string;
   [key: string]: unknown;
 }
 
-interface ZodSchemaWithDef extends ZodSchema {
+interface ZodSchemaWithDef {
   _def: ZodDef;
 }
 
 interface ZodCheck {
   kind: string;
   value?: unknown;
+  regex?: RegExp;
   [key: string]: unknown;
 }
 
@@ -153,34 +155,43 @@ function convertSchema(schema: ZodSchema): any {
   }
 
   if (schema instanceof ZodString) {
-    if (hasZodDef(schema) && 'checks' in schema._def && Array.isArray(schema._def.checks)) {
-      const checks = schema._def.checks as ZodCheck[];
+    if (
+      hasZodDef(schema) &&
+      'checks' in schema._def &&
+      Array.isArray(schema._def.checks)
+    ) {
+      const checks = schema._def.checks as unknown as ZodCheck[];
       const result: any = { type: 'string' };
 
       for (const check of checks) {
-      if (check.kind === 'email') {
-        result.format = 'email';
-      } else if (check.kind === 'url') {
-        result.format = 'url';
-      } else if (check.kind === 'uuid') {
-        result.format = 'uuid';
-      } else if (check.kind === 'min') {
-        result.minLength = check.value;
-      } else if (check.kind === 'max') {
-        result.maxLength = check.value;
-      } else if (check.kind === 'regex') {
-        result.pattern = check.regex.source;
+        if (check.kind === 'email') {
+          result.format = 'email';
+        } else if (check.kind === 'url') {
+          result.format = 'url';
+        } else if (check.kind === 'uuid') {
+          result.format = 'uuid';
+        } else if (check.kind === 'min') {
+          result.minLength = check.value;
+        } else if (check.kind === 'max') {
+          result.maxLength = check.value;
+        } else if (check.kind === 'regex' && check.regex instanceof RegExp) {
+          result.pattern = check.regex.source;
+        }
       }
 
       return result;
     }
-    
+
     return { type: 'string' };
   }
 
   if (schema instanceof ZodNumber) {
-    if (hasZodDef(schema) && 'checks' in schema._def && Array.isArray(schema._def.checks)) {
-      const checks = schema._def.checks as ZodCheck[];
+    if (
+      hasZodDef(schema) &&
+      'checks' in schema._def &&
+      Array.isArray(schema._def.checks)
+    ) {
+      const checks = schema._def.checks as unknown as ZodCheck[];
       const result: any = { type: 'number' };
 
       for (const check of checks) {
@@ -195,7 +206,7 @@ function convertSchema(schema: ZodSchema): any {
 
       return result;
     }
-    
+
     return { type: 'number' };
   }
 
@@ -239,13 +250,17 @@ function convertSchema(schema: ZodSchema): any {
   }
 
   if (schema instanceof ZodUnion) {
-    if (hasZodDef(schema) && 'options' in schema._def && Array.isArray(schema._def.options)) {
+    if (
+      hasZodDef(schema) &&
+      'options' in schema._def &&
+      Array.isArray(schema._def.options)
+    ) {
       const options = schema._def.options as ZodSchema[];
       return {
         oneOf: options.map((option: ZodSchema) => convertSchema(option)),
       };
     }
-    
+
     return { type: 'object' };
   }
 

@@ -102,8 +102,8 @@ export class CommentsService {
 
     // 부모 댓글의 childIds 업데이트
     if (parentComment) {
-      await this.commentModel.findByIdAndUpdate(parentComment.id, {
-        $push: { childIds: savedComment.id },
+      await this.commentModel.findByIdAndUpdate(parentComment.id.toString(), {
+        $push: { childIds: savedComment.id.toString() },
       });
     }
 
@@ -698,7 +698,7 @@ export class CommentsService {
     }
 
     const path = Array.isArray(parentComment.path) ? parentComment.path : [];
-    return path.concat(parentComment.id);
+    return path.concat([parentComment.id.toString()]);
   }
 
   /**
