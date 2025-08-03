@@ -9,7 +9,7 @@ import type { Category } from '../types/entities/category.types';
  * Zod Category 타입을 정확히 구현
  */
 @Schema({
-  collection: 'categories',
+  collection: 'zod_categories',
   ...SCHEMA_OPTIONS,
 })
 export class CategoryModel extends BaseModel implements Category {
