@@ -60,6 +60,13 @@ function isZodObject(schema: ZodSchema): schema is ZodObject<any> {
 }
 
 /**
+ * Zod 스키마가 _def 속성을 가지고 있는지 확인하는 타입 가드
+ */
+function hasZodDef(schema: unknown): schema is { _def: any } {
+  return typeof schema === 'object' && schema !== null && '_def' in schema;
+}
+
+/**
  * ZodParam과 함께 사용하여 Swagger 문서화를 추가하는 헬퍼 함수
  *
  * @example
