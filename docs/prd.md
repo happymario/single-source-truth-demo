@@ -1120,6 +1120,9 @@ module.exports = {
 # 타입 체크
 npm run type-check
 
+# 포맷팅 검사 (파일 수정 없이)
+npm run format:check
+
 # 린트 검사 (any 타입 사용 포함)
 npm run lint
 ```
