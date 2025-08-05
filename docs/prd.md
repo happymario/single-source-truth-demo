@@ -1120,11 +1120,8 @@ module.exports = {
 # 타입 체크
 npm run type-check
 
-# zod 스키마 일관성 검증
-npm run validate-schemas
-
-# 프로덕션 코드에서 any 타입 사용 검사 (테스트 코드 제외)
-npm run check-any-usage
+# 린트 검사 (any 타입 사용 포함)
+npm run lint
 ```
 
 ---
