@@ -56,15 +56,16 @@ export const CommentActionSchema = z.object({
 /**
  * 댓글 트리 구조 DTO 스키마 (재귀 스키마)
  */
-export const CommentTreeNodeSchema: z.ZodType<CommentTreeNode> = z.lazy(() =>
-  CommentMasterSchema.extend({
-    children: z.array(CommentTreeNodeSchema).default([]),
-  }),
-);
+type CommentTreeNodeType = z.infer<typeof CommentMasterSchema> & {
+  children: CommentTreeNodeType[];
+};
 
-export interface CommentTreeNode extends z.infer<typeof CommentMasterSchema> {
-  children: CommentTreeNode[];
-}
+export const CommentTreeNodeSchema: z.ZodType<CommentTreeNodeType> = z.lazy(
+  () =>
+    CommentMasterSchema.extend({
+      children: z.array(CommentTreeNodeSchema).default([]),
+    }),
+);
 
 /**
  * 댓글 대량 작업 DTO 스키마

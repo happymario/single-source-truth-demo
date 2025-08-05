@@ -55,14 +55,18 @@ interface ApiQueryConfig {
 /**
  * ZodObject인지 확인하는 타입 가드
  */
-function isZodObject(schema: ZodSchema): schema is ZodObject<any> {
+function isZodObject(
+  schema: ZodSchema,
+): schema is ZodObject<Record<string, ZodSchema>> {
   return schema instanceof ZodObject;
 }
 
 /**
  * Zod 스키마가 _def 속성을 가지고 있는지 확인하는 타입 가드
  */
-function hasZodDef(schema: unknown): schema is { _def: any } {
+function hasZodDef(
+  schema: unknown,
+): schema is { _def: Record<string, unknown> } {
   return typeof schema === 'object' && schema !== null && '_def' in schema;
 }
 
@@ -150,7 +154,7 @@ export function ApiParamFromZod(
  * ```
  */
 export function ApiQueryFromZod(
-  schema: ZodSchema & { _example?: any },
+  schema: ZodSchema & { _example?: unknown },
 ): MethodDecorator {
   return (
     target: object,
@@ -338,7 +342,7 @@ function extractExampleFromSchema(schema: ZodSchema): ExampleValue | undefined {
  * ```
  */
 export function ApiParamsFromZod(
-  params: Record<string, ZodSchema & { _example?: any }>,
+  params: Record<string, ZodSchema & { _example?: unknown }>,
 ): MethodDecorator {
   return (
     target: object,
