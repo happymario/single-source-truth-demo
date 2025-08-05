@@ -49,7 +49,7 @@ export const processUser = (user: User): UserResponse => {
   return UserMapper.toResponse(user);
 };
 
-// ❌ 금지: any 사용
+// ❌ 금지: 프로덕션 코드에서 any 사용
 export const processUser = (user: any): any => {  // 절대 금지!
   return user;
 };
@@ -58,6 +58,15 @@ export const processUser = (user: any): any => {  // 절대 금지!
 export const processUnknownData = (data: unknown): User => {
   return UserMasterSchema.parse(data);  // zod로 검증 후 타입 확정
 };
+
+// ✅ 허용: 테스트 코드에서만 any 사용 (Mock 객체, 타입 단언 등)
+describe('UserService', () => {
+  it('should create user', () => {
+    const mockUser = { id: '123', email: 'test@example.com' } as any; // 테스트에서 허용
+    const result = userService.create(mockUser);
+    expect(result).toBeDefined();
+  });
+});
 ```
 
 ### 3️⃣ zod 스키마 파생 규칙
@@ -1025,7 +1034,7 @@ interface CustomUser {  // 절대 금지!
 - [ ] zod 스키마와 Mongoose 모델 간 타입 일치성
 - [ ] API 응답 타입과 실제 응답 100% 일치
 - [ ] 런타임 검증 에러의 정확한 필드 지적
-- [ ] **any 타입 사용이 0개인가?** (unknown은 허용)
+- [ ] **프로덕션 코드에서 any 타입 사용이 0개인가?** (테스트 코드는 허용, unknown은 허용)
 
 ### NestJS 파이프라인 통합
 - [ ] ZodValidationPipe가 모든 에러를 정확히 포착하는가?
@@ -1067,7 +1076,7 @@ interface CustomUser {  // 절대 금지!
 // .eslintrc.js
 module.exports = {
   rules: {
-    // any 타입 사용 금지
+    // 프로덕션 코드에서 any 타입 사용 금지 (테스트 코드는 허용)
     '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/no-unsafe-assignment': 'error',
     '@typescript-eslint/no-unsafe-call': 'error',
@@ -1076,7 +1085,20 @@ module.exports = {
     
     // 중복 타입 정의 금지 (커스텀 규칙)
     'no-duplicate-type-definitions': 'error',
-  }
+  },
+  overrides: [
+    {
+      // 테스트 파일에서만 any 사용 허용
+      files: ['**/*.spec.ts', '**/*.test.ts', 'test/**/*.ts'],
+      rules: {
+        '@typescript-eslint/no-explicit-any': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        '@typescript-eslint/no-unsafe-return': 'off',
+      },
+    },
+  ],
 };
 ```
 
@@ -1089,7 +1111,7 @@ npm run type-check
 # zod 스키마 일관성 검증
 npm run validate-schemas
 
-# any 타입 사용 검사
+# 프로덕션 코드에서 any 타입 사용 검사 (테스트 코드 제외)
 npm run check-any-usage
 ```
 
@@ -1110,7 +1132,7 @@ npm run check-any-usage
 - 타입 추론 성능 및 컴파일 시간 측정
 - 실무 적용 시 발생 가능한 문제점 및 해결책
 - Single Source of Truth 패턴 준수율 측정 (100% 목표)
-- any 타입 사용률 측정 (0% 목표)
+- 프로덕션 코드에서 any 타입 사용률 측정 (0% 목표, 테스트 코드 제외)
 
 ### 문서화
 - zod 스키마 설계 가이드라인
